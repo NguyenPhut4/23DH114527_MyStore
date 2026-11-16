@@ -1,0 +1,43 @@
+/* Trang Chi tiet san pham */
+.detail-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 24px;
+}
+
+.detail-image {
+    width: 100%;
+    max-width: 340px;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #eceff1;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .1);
+}
+
+.detail-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.detail-price {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #d0021b;
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 8px 14px;
+    display: inline-block;
+    margin: 8px 0 16px;
+}
+
+.detail-desc {
+    white-space: pre-line;
+    color: #374151;
+}
+
+.buy-box {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 16px;
+    margin-top: 16px;
+}

@@ -1,0 +1,38 @@
+﻿@model IEnumerable<NguyenTanPhu_23DH114527.Models.Product>
+
+@if (!Model.Any())
+{
+    <p class="empty-result">KHÔNG CÓ</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-admin">
+            <thead>
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th>Giá bán</th>
+                    <th>Tồn kho</th>
+                    <th>Đã bán</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td><img src="@Url.Content(p.ImageUrl)" alt="@p.ProductName" class="product-thumb" /></td>
+                        <td>@p.ProductName</td>
+                        <td>@(p.Category != null ? p.Category.CategoryName : "")</td>
+                        <td class="text-nowrap">@p.ProductPrice.ToString("N0") đ</td>
+                        <td>@p.Quantity</td>
+                        <td>@p.SoldQuantity</td>
+                        <td>@Html.ActionLink("Cập nhật", "Edit", "Products", new { id = p.ProductID }, new { @class = "btn btn-sm btn-warning" })</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

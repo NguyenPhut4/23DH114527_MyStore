@@ -1,0 +1,181 @@
+/* Trang Don hang cua toi */
+.myorder {
+    max-width: 920px;
+    margin: 0 auto;
+}
+
+.order-tabs {
+    display: flex;
+    background: #fff;
+    border-radius: 8px 8px 0 0;
+    overflow-x: auto;
+}
+
+.order-tabs a {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+    padding: 12px 8px;
+    color: #4b5563 !important;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+}
+
+.order-tabs a.active {
+    color: #0d6efd !important;
+    border-bottom-color: #0d6efd;
+}
+
+.order-tabs .count {
+    font-size: .75rem;
+    color: #9ca3af;
+}
+
+.order-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 4px 4px 4px 12px;
+    margin: 12px 0;
+    color: #6b7280;
+}
+
+.order-search input {
+    flex: 1;
+    border: 0;
+    outline: none;
+    padding: 6px 0;
+    min-width: 0;
+}
+
+.order-search button {
+    border: 0;
+    border-left: 1px solid #d1d5db;
+    background: none;
+    color: #0d6efd;
+    padding: 6px 12px;
+    white-space: nowrap;
+}
+
+.status-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 20px 0 8px;
+}
+
+.order-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+}
+
+.order-card-head {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.status-label {
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.status-label.status-0 { color: #b54708; }
+.status-label.status-1 { color: #0e7090; }
+.status-label.status-2 { color: #175cd3; }
+.status-label.status-3 { color: #067647; }
+.status-label.status-4 { color: #b42318; }
+
+.order-item {
+    display: grid;
+    grid-template-columns: 72px 1fr auto;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.order-thumb {
+    position: relative;
+    display: block;
+}
+
+.order-thumb img {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    background: #eceff1;
+}
+
+.order-thumb .qty {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background: #e5e7eb;
+    color: #374151;
+    font-size: .75rem;
+    padding: 1px 6px;
+    border-radius: 4px 0 4px 0;
+}
+
+.order-item-name {
+    color: #111827 !important;
+    text-decoration: none;
+}
+
+.order-item-actions {
+    margin-top: 4px;
+    display: flex;
+    gap: 12px;
+    font-size: .85rem;
+}
+
+.link-btn {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: #0d6efd !important;
+    text-decoration: none;
+    font-size: .85rem;
+}
+
+.order-item-price {
+    white-space: nowrap;
+}
+
+.more-items {
+    margin-top: 10px;
+}
+
+.order-card-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.see-more {
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+@media (max-width: 575px) {
+    .order-item {
+        grid-template-columns: 60px 1fr;
+    }
+
+    .order-item-price {
+        grid-column: 2;
+    }
+}

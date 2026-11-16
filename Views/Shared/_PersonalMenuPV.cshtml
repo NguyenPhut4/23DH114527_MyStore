@@ -1,0 +1,46 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.PersonalMenuVM
+
+<ul class="navbar-nav personal-menu ms-lg-auto align-items-lg-center">
+    <li class="nav-item">
+        <a class="nav-link" href="@Url.Action("Index", "Home", new { area = "" })">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /></svg>
+            <span>Trang chủ</span>
+        </a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            @if (Model.IsLoggedIn)
+            {
+                @* Da dang nhap: doi sang icon Ho so nguoi dung (chu cai dau ten) *@
+                <span class="avatar-icon" aria-hidden="true">@(string.IsNullOrWhiteSpace(Model.DisplayName) ? "?" : Model.DisplayName.Trim().Substring(Model.DisplayName.Trim().LastIndexOf(' ') + 1, 1).ToUpper())</span>
+                <span>Hello, @Model.DisplayName</span>
+            }
+            else
+            {
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
+                <span>Tài khoản</span>
+            }
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            @if (Model.IsLoggedIn)
+            {
+                <li>@Html.ActionLink("Thông tin tài khoản", "ProfileInfo", "Account", new { area = "" }, new { @class = "dropdown-item" })</li>
+                <li>@Html.ActionLink("Lịch sử mua hàng", "MyOrder", "Order", new { area = "" }, new { @class = "dropdown-item" })</li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>@Html.ActionLink("Đăng xuất", "Logout", "Account", new { area = "" }, new { @class = "dropdown-item" })</li>
+            }
+            else
+            {
+                <li>@Html.ActionLink("Đăng nhập", "Login", "Account", new { area = "" }, new { @class = "dropdown-item" })</li>
+                <li>@Html.ActionLink("Đăng ký", "Register", "Account", new { area = "" }, new { @class = "dropdown-item" })</li>
+            }
+        </ul>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link cart-link" href="@Url.Action("Index", "Cart", new { area = "" })" aria-label="Giỏ hàng">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4" /><circle cx="18" cy="20" r="1.4" /><path d="M2 3h3l2.6 12.4a1 1 0 0 0 1 .8h9.7a1 1 0 0 0 1-.8L21 7H6" /></svg>
+            <span>Giỏ hàng</span>
+            <span class="cart-badge">@Model.CartCount</span>
+        </a>
+    </li>
+</ul>

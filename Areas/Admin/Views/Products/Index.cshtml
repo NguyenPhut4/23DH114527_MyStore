@@ -1,0 +1,46 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.SearchProductVM
+@{
+    ViewBag.Title = "Quản lý hàng hóa";
+    var sortOptions = new SelectList(new[]
+    {
+        new { Value = "", Text = "Mới nhất" },
+        new { Value = "name_asc", Text = "Tên A → Z" },
+        new { Value = "name_desc", Text = "Tên Z → A" },
+        new { Value = "price_asc", Text = "Giá tăng dần" },
+        new { Value = "price_desc", Text = "Giá giảm dần" },
+        new { Value = "qty_asc", Text = "Tồn kho ít nhất" }
+    }, "Value", "Text", Model.SortOrder);
+}
+
+@using (Html.BeginForm("Index", "Products", FormMethod.Get))
+{
+    <div class="row g-3 align-items-end mt-1">
+        <div class="col-md-4">
+            @Html.LabelFor(m => m.SearchTerm, new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.SearchTerm, new { @class = "form-control", placeholder = "Tên, mô tả hoặc danh mục" })
+        </div>
+        <div class="col-6 col-md-2">
+            @Html.LabelFor(m => m.MinPrice, new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.MinPrice, new { @class = "form-control", type = "number", min = "0", step = "1000" })
+        </div>
+        <div class="col-6 col-md-2">
+            @Html.LabelFor(m => m.MaxPrice, new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.MaxPrice, new { @class = "form-control", type = "number", min = "0", step = "1000" })
+        </div>
+        <div class="col-md-2">
+            @Html.LabelFor(m => m.SortOrder, new { @class = "form-label" })
+            @Html.DropDownListFor(m => m.SortOrder, sortOptions, new { @class = "form-select" })
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            @Html.ActionLink("Xóa lọc", "Index", null, new { @class = "btn btn-outline-secondary" })
+        </div>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+    <h2 class="page-title flex-grow-1">Danh sách sản phẩm</h2>
+    @Html.ActionLink("+ Thêm sản phẩm", "Create", null, new { @class = "btn btn-primary" })
+</div>
+
+@Html.Partial("PVListProduct", Model)

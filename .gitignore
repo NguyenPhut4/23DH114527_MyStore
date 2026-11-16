@@ -1,0 +1,21 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+# NuGet (Visual Studio tu restore lai tu packages.config khi build)
+packages/
+*.nupkg
+
+# Logs / tam
+*.log
+Thumbs.db
+Desktop.ini

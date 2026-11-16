@@ -1,0 +1,140 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.MyOrderVM
+@using NguyenTanPhu_23DH114527.Models
+@{
+    ViewBag.Title = "Đơn hàng của tôi";
+    var totalAll = Model.StatusCounts.Values.Sum();
+}
+
+@section styles {
+    <link href="~/Content/myStyle/MyOrder.css" rel="stylesheet" />
+}
+
+<div class="myorder">
+    <h1 class="h4 mb-3">Đơn hàng của tôi</h1>
+
+    @if (!Model.HasAnyOrder)
+    {
+        <div class="empty-box">
+            <p class="fw-bold mb-3">BẠN CHƯA CÓ ĐƠN HÀNG NÀO. HÃY ĐẶT ĐƠN NGAY.</p>
+            @Html.ActionLink("Về trang HOME", "Index", "Home", null, new { @class = "btn btn-buy" })
+        </div>
+    }
+    else
+    {
+        <nav class="order-tabs" aria-label="Lọc theo trạng thái">
+            <a href="@Url.Action("MyOrder", new { searchTerm = Model.SearchTerm })" class="@(Model.Status == null ? "active" : "")">
+                Tất cả đơn <span class="count">@totalAll</span>
+            </a>
+            @foreach (var s in OrderStatuses.All)
+            {
+                <a href="@Url.Action("MyOrder", new { status = s, searchTerm = Model.SearchTerm })" class="@(Model.Status == s ? "active" : "")">
+                    @s <span class="count">@Model.StatusCounts[s]</span>
+                </a>
+            }
+        </nav>
+
+        using (Html.BeginForm("MyOrder", "Order", FormMethod.Get, new { @class = "order-search", role = "search" }))
+        {
+            if (Model.Status != null)
+            {
+                <input type="hidden" name="status" value="@Model.Status" />
+            }
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
+            <input type="search" name="searchTerm" value="@Model.SearchTerm" placeholder="Tìm đơn hàng theo Mã đơn hàng hoặc Tên sản phẩm" aria-label="Tìm đơn hàng" />
+            <button type="submit">Tìm đơn hàng</button>
+        }
+
+        if (!Model.Groups.Any())
+        {
+            <div class="empty-box">
+                <p class="mb-2">Không tìm thấy đơn hàng phù hợp.</p>
+                @Html.ActionLink("Xem tất cả đơn", "MyOrder")
+            </div>
+        }
+
+        foreach (var group in Model.Groups)
+        {
+            <section class="status-group" id="group-@Array.IndexOf(OrderStatuses.All.ToArray(), group.Status)">
+                @if (Model.Status == null)
+                {
+                    <h2 class="status-title">@group.Status <span class="text-muted">(@group.TotalCount)</span></h2>
+                }
+
+                @foreach (var order in group.Orders)
+                {
+                    var details = order.OrderDetails.ToList();
+                    var collapseId = "more-" + order.OrderID;
+                    <article class="order-card">
+                        <header class="order-card-head">
+                            <span class="status-label status-@Array.IndexOf(OrderStatuses.All.ToArray(), order.OrderStatus)">@order.OrderStatus</span>
+                            <span class="text-muted small">Mã đơn #@order.OrderID · Ngày đặt @order.OrderDate.ToString("dd/MM/yyyy")</span>
+                        </header>
+
+                        @for (var i = 0; i < details.Count; i++)
+                        {
+                            var od = details[i];
+                            if (i == 2)
+                            {
+                                @:<div class="collapse" id="@collapseId">
+                            }
+                            <div class="order-item">
+                                <a href="@Url.Action("ProductDetail", "Home", new { id = od.ProductID })" class="order-thumb">
+                                    <img src="@Url.Content(od.Product.ImageUrl)" alt="@od.Product.ProductName" />
+                                    <span class="qty">x@(od.Quantity)</span>
+                                </a>
+                                <div class="order-item-info">
+                                    <a href="@Url.Action("ProductDetail", "Home", new { id = od.ProductID })" class="order-item-name">@od.Product.ProductName</a>
+                                    <div class="order-item-actions">
+                                        @using (Html.BeginForm("BuyAgain", "Order", FormMethod.Post, new { @class = "d-inline" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="productId" value="@od.ProductID" />
+                                            <button type="submit" class="link-btn">Mua lại</button>
+                                        }
+                                        <a href="@Url.Action("ProductDetail", "Home", new { id = od.ProductID })" class="link-btn">Xem chi tiết</a>
+                                    </div>
+                                </div>
+                                <div class="order-item-price">@((od.TotalPrice ?? od.Quantity * od.UnitPrice).ToString("N0")) đ</div>
+                            </div>
+                            if (i == details.Count - 1 && details.Count > 2)
+                            {
+                                @:</div>
+                            }
+                        }
+
+                        @if (details.Count > 2)
+                        {
+                            <button type="button" class="btn btn-sm btn-light border more-items" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false">
+                                Xem thêm @(details.Count - 2) sản phẩm
+                            </button>
+                        }
+
+                        <footer class="order-card-foot">
+                            <div>Tổng tiền: <strong>@order.TotalAmount.ToString("N0") đ</strong></div>
+                            <div class="d-flex gap-2">
+                                @using (Html.BeginForm("BuyAgain", "Order", FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">Mua lại</button>
+                                }
+                                @Html.ActionLink("Xem chi tiết", "OrderDetail", new { id = order.OrderID }, new { @class = "btn btn-outline-primary btn-sm" })
+                            </div>
+                        </footer>
+                    </article>
+                }
+
+                @if (group.TotalCount > group.Orders.Count && !group.Expanded)
+                {
+                    <a class="see-more" href="@Url.Action("MyOrder", new { status = Model.Status, expand = group.Status, searchTerm = Model.SearchTerm })#group-@Array.IndexOf(OrderStatuses.All.ToArray(), group.Status)">
+                        Xem thêm đơn "@group.Status" (@(group.TotalCount - group.Orders.Count) đơn)
+                    </a>
+                }
+                else if (group.Expanded && group.TotalCount > group.Orders.Count)
+                {
+                    <p class="text-muted small">Đang hiển thị @group.Orders.Count đơn gần nhất.</p>
+                }
+            </section>
+        }
+    }
+</div>

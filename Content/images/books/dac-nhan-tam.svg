@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+<defs>
+  <filter id="paper" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="table" tableValues="0 0.07"/></feComponentTransfer>
+  </filter>
+  <linearGradient id="spine" x1="0" x2="1">
+    <stop offset="0" stop-color="#000" stop-opacity="0.45"/>
+    <stop offset="0.035" stop-color="#000" stop-opacity="0.18"/>
+    <stop offset="0.05" stop-color="#fff" stop-opacity="0.22"/>
+    <stop offset="0.065" stop-color="#000" stop-opacity="0.06"/>
+    <stop offset="0.2" stop-color="#000" stop-opacity="0"/>
+    <stop offset="0.9" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.12"/>
+  </linearGradient>
+  <radialGradient id="light" cx="0.35" cy="0.25" r="0.9">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.16"/>
+    <stop offset="0.6" stop-color="#fff" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.18"/>
+  </radialGradient>
+  
+</defs>
+
+<rect width="600" height="800" fill="#1f4d43"/>
+<rect x="40" y="40" width="520" height="720" fill="none" stroke="#d4af37" stroke-width="3"/>
+<rect x="54" y="54" width="492" height="692" fill="none" stroke="#d4af37" stroke-width="1.2"/>
+<g fill="#d4af37">
+  <path d="M300 330 l12 30 32 2 -25 20 9 31 -28 -18 -28 18 9 -31 -25 -20 32 -2 z"/>
+  <path d="M190 470 h220" stroke="#d4af37" stroke-width="2"/>
+  <circle cx="300" cy="470" r="6"/>
+</g>
+<text x="300" y="150.0" font-family="'Times New Roman', Times, serif" font-size="28" font-weight="700" fill="#d4af37" text-anchor="middle" letter-spacing="8" >DALE CARNEGIE</text><text x="300" y="250.0" font-family="'Times New Roman', Times, serif" font-size="78" font-weight="700" fill="#f3e9c6" text-anchor="middle" letter-spacing="10" >ĐẮC</text><text x="300" y="580.0" font-family="'Times New Roman', Times, serif" font-size="70" font-weight="700" fill="#f3e9c6" text-anchor="middle" letter-spacing="6" >NHÂN TÂM</text><text x="300" y="640.0" font-family="'Times New Roman', Times, serif" font-size="22" font-weight="400" fill="#d4af37" text-anchor="middle" letter-spacing="0" font-style="italic">How to Win Friends</text>
+<text x="300" y="665.3" font-family="'Times New Roman', Times, serif" font-size="22" font-weight="400" fill="#d4af37" text-anchor="middle" letter-spacing="0" font-style="italic">&amp; Influence People</text><text x="300" y="720.0" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#c8d8d2" text-anchor="middle" letter-spacing="0" >Nghệ thuật thu phục lòng người</text>
+<rect width="600" height="800" filter="url(#paper)"/>
+<rect width="600" height="800" fill="url(#light)"/>
+<rect width="600" height="800" fill="url(#spine)"/>
+</svg>

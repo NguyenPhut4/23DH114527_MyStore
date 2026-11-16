@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+<defs>
+  <filter id="paper" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="table" tableValues="0 0.07"/></feComponentTransfer>
+  </filter>
+  <linearGradient id="spine" x1="0" x2="1">
+    <stop offset="0" stop-color="#000" stop-opacity="0.45"/>
+    <stop offset="0.035" stop-color="#000" stop-opacity="0.18"/>
+    <stop offset="0.05" stop-color="#fff" stop-opacity="0.22"/>
+    <stop offset="0.065" stop-color="#000" stop-opacity="0.06"/>
+    <stop offset="0.2" stop-color="#000" stop-opacity="0"/>
+    <stop offset="0.9" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.12"/>
+  </linearGradient>
+  <radialGradient id="light" cx="0.35" cy="0.25" r="0.9">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.16"/>
+    <stop offset="0.6" stop-color="#fff" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.18"/>
+  </radialGradient>
+  <linearGradient id="g10" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b2ebf2"/><stop offset="0.55" stop-color="#c5e1a5"/><stop offset="1" stop-color="#8bc34a"/></linearGradient>
+</defs>
+
+<rect width="600" height="800" fill="url(#g10)"/>
+<circle cx="480" cy="360" r="46" fill="#fff59d"/>
+<path d="M10 800 q0 -190 -24 -270" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M32 800 q20 -164 0 -272" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M54 800 q-20 -138 24 -274" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M76 800 q0 -202 -12 -276" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M98 800 q20 -176 12 -278" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M120 800 q-20 -150 -24 -160" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M142 800 q0 -124 0 -162" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M164 800 q20 -188 24 -164" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M186 800 q-20 -162 -12 -166" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M208 800 q0 -136 12 -168" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M230 800 q20 -200 -24 -170" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M252 800 q-20 -174 0 -172" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M274 800 q0 -148 24 -174" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M296 800 q20 -122 -12 -176" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M318 800 q-20 -186 12 -178" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M340 800 q0 -160 -24 -180" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M362 800 q20 -134 0 -182" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M384 800 q-20 -198 24 -184" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M406 800 q0 -172 -12 -186" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M428 800 q20 -146 12 -188" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M450 800 q-20 -120 -24 -190" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M472 800 q0 -184 0 -192" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M494 800 q20 -158 24 -194" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M516 800 q-20 -132 -12 -196" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M538 800 q0 -196 12 -198" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M560 800 q20 -170 -24 -200" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M582 800 q-20 -144 0 -202" stroke="#388e3c" stroke-width="6" fill="none" stroke-linecap="round"/>
+<rect x="40" y="128" width="520" height="170" rx="14" fill="#1b5e20" opacity="0.88"/>
+<g transform="translate(300 420) rotate(-8)">
+  <ellipse cx="0" cy="0" rx="95" ry="40" fill="#5d3a1a"/>
+  <ellipse cx="-10" cy="-8" rx="80" ry="26" fill="#7b4f24"/>
+  <circle cx="-100" cy="-6" r="28" fill="#4e2f14"/>
+  <circle cx="-110" cy="-14" r="6" fill="#fff"/><circle cx="-112" cy="-14" r="3" fill="#000"/>
+  <path d="M-118 -30 q-50 -50 10 -90 M-106 -32 q-10 -60 60 -84" stroke="#4e2f14" stroke-width="4" fill="none"/>
+  <path d="M40 20 l60 70 M10 30 l20 80 M-40 30 l-30 70 M70 10 l90 40" stroke="#4e2f14" stroke-width="8" stroke-linecap="round"/>
+</g>
+<text x="300" y="90.0" font-family="'Times New Roman', Times, serif" font-size="30" font-weight="700" fill="#0d3d12" text-anchor="middle" letter-spacing="10" >TÔ HOÀI</text><text x="300" y="210.0" font-family="'Times New Roman', Times, serif" font-size="78" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="0" stroke="#1b5e20" stroke-width="2" paint-order="stroke">Dế Mèn</text><text x="300" y="275.0" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="40" font-weight="800" fill="#ffeb3b" text-anchor="middle" letter-spacing="6" stroke="#1b5e20" stroke-width="2" paint-order="stroke">PHIÊU LƯU KÝ</text><text x="300" y="760.0" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="20" font-weight="600" fill="#ffffff" text-anchor="middle" letter-spacing="0" >Tác phẩm văn học thiếu nhi kinh điển</text>
+<rect width="600" height="800" filter="url(#paper)"/>
+<rect width="600" height="800" fill="url(#light)"/>
+<rect width="600" height="800" fill="url(#spine)"/>
+</svg>

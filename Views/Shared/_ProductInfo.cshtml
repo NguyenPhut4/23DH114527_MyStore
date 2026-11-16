@@ -1,0 +1,47 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Product
+@*
+    Partial Detail Product dung chung:
+    - Admin: Products/Details, Products/Delete (khong co nut MUA HANG)
+    - Customer: Home/ProductDetail (ViewData["ShowBuyBox"] = true -> hien phan chon mua)
+*@
+@{
+    var showBuyBox = ViewData["ShowBuyBox"] as bool? == true;
+}
+
+<div class="row g-4 product-info">
+    <div class="col-md-5 text-center">
+        <img src="@Url.Content(Model.ImageUrl)" alt="@Model.ProductName" class="product-image-lg detail-image" />
+    </div>
+    <div class="col-md-7">
+        <h1 class="detail-title h3">@Model.ProductName</h1>
+        <p class="text-muted mb-2">
+            Danh mục: @(Model.Category != null ? Model.Category.CategoryName : "")
+            · Đã bán @Model.SoldQuantity
+        </p>
+        <div class="detail-price fs-3 fw-bold text-danger">@Model.ProductPrice.ToString("N0") đ</div>
+
+        <dl class="row mb-2">
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ProductID)</dt>
+            <dd class="col-sm-8">@Model.ProductID</dd>
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Quantity)</dt>
+            <dd class="col-sm-8">
+                @if (Model.Quantity > 0)
+                {
+                    @Model.Quantity
+                }
+                else
+                {
+                    <span class="badge bg-danger">Hết hàng</span>
+                }
+            </dd>
+        </dl>
+
+        <h2 class="h6">@Html.DisplayNameFor(m => m.ProductDescription)</h2>
+        <p class="detail-desc" style="white-space: pre-line">@Model.ProductDescription</p>
+
+        @if (showBuyBox)
+        {
+            @Html.Partial("~/Views/Home/_BuyBox.cshtml", Model)
+        }
+    </div>
+</div>

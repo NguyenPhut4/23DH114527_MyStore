@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+<defs>
+  <filter id="paper" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="table" tableValues="0 0.07"/></feComponentTransfer>
+  </filter>
+  <linearGradient id="spine" x1="0" x2="1">
+    <stop offset="0" stop-color="#000" stop-opacity="0.45"/>
+    <stop offset="0.035" stop-color="#000" stop-opacity="0.18"/>
+    <stop offset="0.05" stop-color="#fff" stop-opacity="0.22"/>
+    <stop offset="0.065" stop-color="#000" stop-opacity="0.06"/>
+    <stop offset="0.2" stop-color="#000" stop-opacity="0"/>
+    <stop offset="0.9" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.12"/>
+  </linearGradient>
+  <radialGradient id="light" cx="0.35" cy="0.25" r="0.9">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.16"/>
+    <stop offset="0.6" stop-color="#fff" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.18"/>
+  </radialGradient>
+  
+</defs>
+
+<rect width="600" height="800" fill="#0096e0"/>
+<path d="M300 430 L1000 430" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L989 551" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L957 669" stroke="#ffffff" stroke-width="7" opacity="0.55"/><path d="M300 430 L906 779" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L836 879" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L749 966" stroke="#ffffff" stroke-width="7" opacity="0.55"/><path d="M300 430 L650 1036" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L539 1087" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L421 1119" stroke="#ffffff" stroke-width="7" opacity="0.55"/><path d="M300 430 L300 1129" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L179 1119" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L61 1087" stroke="#ffffff" stroke-width="7" opacity="0.55"/><path d="M300 430 L-49 1036" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L-149 966" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L-236 879" stroke="#ffffff" stroke-width="7" opacity="0.55"/><path d="M300 430 L-306 780" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L-357 669" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L-389 551" stroke="#ffffff" stroke-width="7" opacity="0.55"/><path d="M300 430 L-399 430" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L-389 309" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L-357 191" stroke="#ffffff" stroke-width="7" opacity="0.55"/><path d="M300 430 L-306 81" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L-236 -19" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L-150 -106" stroke="#ffffff" stroke-width="7" opacity="0.55"/><path d="M300 430 L-50 -176" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L61 -227" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L179 -259" stroke="#ffffff" stroke-width="7" opacity="0.55"/><path d="M300 430 L300 -269" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L421 -259" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L539 -227" stroke="#ffffff" stroke-width="7" opacity="0.55"/><path d="M300 430 L649 -176" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L749 -106" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L836 -20" stroke="#ffffff" stroke-width="7" opacity="0.55"/><path d="M300 430 L906 80" stroke="#ffffff" stroke-width="3" opacity="0.55"/><path d="M300 430 L957 191" stroke="#ffffff" stroke-width="5" opacity="0.55"/><path d="M300 430 L989 309" stroke="#ffffff" stroke-width="7" opacity="0.55"/>
+<rect x="0" y="0" width="600" height="190" fill="#ffffff"/>
+<rect x="0" y="186" width="600" height="8" fill="#e60012"/>
+<circle cx="300" cy="430" r="150" fill="#ffffff" opacity="0.92"/>
+<circle cx="300" cy="430" r="150" fill="none" stroke="#e60012" stroke-width="10"/>
+<text x="300" y="400.0" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="48" font-weight="800" fill="#e60012" text-anchor="middle" letter-spacing="6" >TẬP</text><text x="300" y="530.0" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="150" font-weight="900" fill="#0096e0" text-anchor="middle" letter-spacing="0" >1</text><text x="300" y="60.0" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#333333" text-anchor="middle" letter-spacing="5" >FUJIKO F. FUJIO</text><text x="300" y="150.0" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="80" font-weight="900" fill="#0096e0" text-anchor="middle" letter-spacing="2" stroke="#003f6b" stroke-width="3" paint-order="stroke">DORAEMON</text><rect x="150" y="660" width="300" height="56" rx="28" fill="#ffdd00"/><text x="300" y="698.0" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="28" font-weight="900" fill="#e60012" text-anchor="middle" letter-spacing="3" >TRUYỆN TRANH</text><text x="300" y="765.0" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="20" font-weight="600" fill="#ffffff" text-anchor="middle" letter-spacing="0" >Bản đặc biệt · Dành cho thiếu nhi</text>
+<rect width="600" height="800" filter="url(#paper)"/>
+<rect width="600" height="800" fill="url(#light)"/>
+<rect width="600" height="800" fill="url(#spine)"/>
+</svg>

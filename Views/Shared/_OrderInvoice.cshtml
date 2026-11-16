@@ -1,0 +1,39 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Order
+@* Hoa don mua hang: dung chung cho Admin (Orders/DetailedOrder) va Customer (OrderSuccess, OrderDetail) *@
+
+<div class="invoice">
+    <div class="invoice-head">
+        <div>
+            <div class="invoice-brand">FA<span>S</span>TOR</div>
+            <div class="invoice-muted">FASTOR Books · Hotline 1900 1234</div>
+        </div>
+        <div class="text-md-end">
+            <div class="invoice-title">HÓA ĐƠN MUA HÀNG</div>
+            <div>Số: <strong>#@Model.OrderID</strong></div>
+            <div>Ngày đặt: @Model.OrderDate.ToString("dd/MM/yyyy")</div>
+        </div>
+    </div>
+
+    <div class="invoice-parties">
+        <div class="invoice-box">
+            <div class="invoice-box-title">Khách hàng</div>
+            <div class="fw-semibold">@(Model.Customer != null ? Model.Customer.CustomerName : "")</div>
+            <div>SĐT: @(Model.Customer != null ? Model.Customer.CustomerPhone : "")</div>
+            <div>@Html.DisplayNameFor(m => m.ShippingAddress): @Model.ShippingAddress</div>
+        </div>
+        <div class="invoice-box">
+            <div class="invoice-box-title">Thanh toán &amp; giao hàng</div>
+            <div>@Html.DisplayNameFor(m => m.PaymentMethod): @Model.PaymentMethod</div>
+            <div>@Html.DisplayNameFor(m => m.PaymentStatus): <strong>@Model.PaymentStatus</strong></div>
+            <div>@Html.DisplayNameFor(m => m.DeliveryMethod): @Model.DeliveryMethod</div>
+            <div>@Html.DisplayNameFor(m => m.OrderStatus): <span class="invoice-status">@Model.OrderStatus</span></div>
+        </div>
+    </div>
+
+    @Html.Partial("~/Views/Shared/_OrderDetailList.cshtml", Model.OrderDetails)
+
+    <div class="invoice-total">
+        <span>@Html.DisplayNameFor(m => m.TotalAmount)</span>
+        <strong>@Model.TotalAmount.ToString("N0") đ</strong>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.HomeProductVM
+@{
+    ViewBag.Title = "Trang chủ";
+    var searching = !string.IsNullOrWhiteSpace(Model.SearchTerm);
+}
+
+@section styles {
+    <link href="~/Content/myStyle/CustomerHome.css" rel="stylesheet" />
+}
+
+@if (!searching)
+{
+    <section class="hero">
+        <div class="hero-text">
+            <p class="hero-kicker">Tuần lễ sách hay</p>
+            <h1>Mỗi cuốn sách là một chuyến đi mới</h1>
+            <p>Hàng trăm đầu sách kinh tế, kỹ năng, văn học và thiếu nhi đang chờ bạn.</p>
+            <a href="#new-products" class="btn btn-buy btn-lg">Khám phá ngay</a>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+            <span class="book b1"></span><span class="book b2"></span><span class="book b3"></span>
+        </div>
+    </section>
+}
+
+<section class="home-search">
+    @using (Html.BeginForm("Index", "Home", FormMethod.Get, new { @class = "d-flex gap-2" }))
+    {
+        <input type="search" name="searchTerm" value="@Model.SearchTerm" class="form-control form-control-lg"
+               placeholder="Tìm theo tên sách, mô tả hoặc danh mục" aria-label="Tìm kiếm sản phẩm" />
+        <button type="submit" class="btn btn-buy btn-lg px-4 text-nowrap">Tìm kiếm</button>
+    }
+    @if (searching)
+    {
+        <p class="mt-2 mb-0">
+            Kết quả cho "<strong>@Model.SearchTerm</strong>" ·
+            @Html.ActionLink("Xóa tìm kiếm", "Index", "Home")
+        </p>
+    }
+</section>
+
+@if (searching && !Model.FeaturedProducts.Any())
+{
+    <p class="empty-box">Không tìm thấy sản phẩm phù hợp.</p>
+}
+else
+{
+    @Html.Partial("_PVFeatureProduct", Model)
+    @Html.Partial("_PVNewProduct", Model)
+}

@@ -1,0 +1,71 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.ProductListVM
+@using PagedList.Mvc
+@{
+    ViewBag.Title = Model.Category.CategoryName;
+    var sorts = new[]
+    {
+        new { Value = "", Text = "Bán chạy" },
+        new { Value = "name_asc", Text = "Tên A → Z" },
+        new { Value = "name_desc", Text = "Tên Z → A" },
+        new { Value = "price_asc", Text = "Giá tăng dần" },
+        new { Value = "price_desc", Text = "Giá giảm dần" }
+    };
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">@Html.ActionLink("Trang chủ", "Index")</li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Category.CategoryName</li>
+    </ol>
+</nav>
+
+<h1 class="h3">@Model.Category.CategoryName <small class="text-muted fs-6">(@Model.Products.TotalItemCount sản phẩm)</small></h1>
+
+@* Tieu chi loc: tu khoa, khoang gia, sap xep *@
+@using (Html.BeginForm("ProductList", "Home", new { id = Model.Category.CategoryID }, FormMethod.Get, new { @class = "filter-bar" }))
+{
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small mb-1" for="searchTerm">Từ khóa</label>
+            <input type="search" id="searchTerm" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Tìm trong danh mục" />
+        </div>
+        <div class="col-6 col-md-2">
+            <label class="form-label small mb-1" for="minPrice">Giá từ</label>
+            <input type="number" id="minPrice" name="minPrice" value="@(Model.MinPrice.HasValue ? Model.MinPrice.Value.ToString("0") : "")" min="0" step="1000" class="form-control" />
+        </div>
+        <div class="col-6 col-md-2">
+            <label class="form-label small mb-1" for="maxPrice">Giá đến</label>
+            <input type="number" id="maxPrice" name="maxPrice" value="@(Model.MaxPrice.HasValue ? Model.MaxPrice.Value.ToString("0") : "")" min="0" step="1000" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1" for="sortOrder">Sắp xếp</label>
+            <select id="sortOrder" name="sortOrder" class="form-select">
+                @foreach (var s in sorts)
+                {
+                    <option value="@s.Value" @(s.Value == (Model.SortOrder ?? "") ? "selected" : "")>@s.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-buy flex-grow-1">Lọc</button>
+            @Html.ActionLink("Xóa", "ProductList", new { id = Model.Category.CategoryID }, new { @class = "btn btn-outline-secondary" })
+        </div>
+    </div>
+}
+
+@if (Model.Products.TotalItemCount == 0)
+{
+    <p class="empty-box">Không có sản phẩm phù hợp.</p>
+}
+else
+{
+    <div class="product-grid">
+        @foreach (var p in Model.Products)
+        {
+            @Html.Partial("~/Views/Shared/_ProductCard.cshtml", p)
+        }
+    </div>
+    <div class="pager-wrap">
+        @Html.PagedListPager(Model.Products, page => Url.Action("ProductList", new { id = Model.Category.CategoryID, page, searchTerm = Model.SearchTerm, sortOrder = Model.SortOrder, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice }))
+    </div>
+}

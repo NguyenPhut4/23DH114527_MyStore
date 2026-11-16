@@ -1,0 +1,142 @@
+/* ===== Admin site (FASTOR) ===== */
+body.admin {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #fff;
+}
+
+.admin-content {
+    flex: 1;
+}
+
+.admin-content input,
+.admin-content select,
+.admin-content textarea {
+    max-width: none;
+}
+
+.admin-logo {
+    background: #fff;
+    color: #222 !important;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 2px 12px;
+    border-radius: 2px;
+    font-size: 1.3rem;
+}
+
+.admin-logo span {
+    text-decoration: underline;
+    text-decoration-color: #2a7de1;
+}
+
+.admin-footer {
+    background: #d3d3d3;
+    padding: 24px 0;
+    margin-top: 24px;
+}
+
+/* tieu de form va bang theo bieu mau */
+.page-title {
+    background: #dff0d8;
+    padding: 4px 8px;
+    font-size: 1.75rem;
+    text-transform: uppercase;
+    margin: 12px 0;
+}
+
+.table-admin thead th {
+    background: #dff0d8;
+    vertical-align: middle;
+}
+
+.table-admin tbody tr {
+    background: #d9edf7;
+}
+
+.table-admin tbody tr td {
+    background: transparent;
+    vertical-align: middle;
+}
+
+.table-admin th a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.product-thumb {
+    width: 64px;
+    height: 86px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+}
+
+.product-image-lg {
+    max-width: 100%;
+    max-height: 360px;
+    object-fit: contain;
+    border: 1px solid #ddd;
+}
+
+.empty-result {
+    font-weight: 700;
+    color: #b94a48;
+    padding: 16px;
+    text-align: center;
+}
+
+.stat-card .stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+/* PagedList.Mvc -> giao dien phan trang Bootstrap 5 */
+.pagination-container .pagination > li > a,
+.pagination-container .pagination > li > span {
+    display: block;
+    padding: 6px 12px;
+    margin-left: -1px;
+    border: 1px solid #dee2e6;
+    color: #0d6efd;
+    text-decoration: none;
+    background: #fff;
+}
+
+.pagination-container .pagination > li.active > a,
+.pagination-container .pagination > li.active > span {
+    background: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+
+.pagination-container .pagination > li.disabled > a,
+.pagination-container .pagination > li.disabled > span {
+    color: #6c757d;
+    pointer-events: none;
+}
+
+/* Login */
+.login-page {
+    align-items: center;
+    justify-content: center;
+    background: #f1f3f5;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 380px;
+    margin: 16px;
+}
+
+/* Hoa don */
+.invoice-info dt {
+    font-weight: 600;
+    text-align: right;
+}
+
+@media (max-width: 767px) {
+    .invoice-info dt {
+        text-align: left;
+    }
+}

@@ -1,0 +1,58 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.OrderSearchVM
+@using PagedList.Mvc
+@{
+    ViewBag.Title = "Đơn hàng";
+    Func<string, string, string> sortLink = (asc, desc) => Url.Action("Index", new
+    {
+        customerName = Model.CustomerName,
+        paymentStatus = Model.PaymentStatus,
+        orderDate = Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("yyyy-MM-dd") : null,
+        sortOrder = Model.SortOrder == asc ? desc : asc
+    });
+}
+
+@using (Html.BeginForm("Index", "Orders", FormMethod.Get))
+{
+    @Html.Hidden("sortOrder", Model.SortOrder)
+    <div class="row g-3 align-items-end mt-1">
+        <div class="col-md-3">
+            @Html.LabelFor(m => m.CustomerName, new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control" })
+        </div>
+        <div class="col-md-3">
+            @Html.LabelFor(m => m.PaymentStatus, new { @class = "form-label" })
+            @Html.DropDownList("PaymentStatus", (SelectList)ViewBag.PaymentStatusList, "-- Tất cả --", new { @class = "form-select" })
+        </div>
+        <div class="col-md-3">
+            @Html.LabelFor(m => m.OrderDate, new { @class = "form-label" })
+            <input type="date" name="OrderDate" id="OrderDate" class="form-control"
+                   value="@(Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("yyyy-MM-dd") : "")" />
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            @Html.ActionLink("Xóa lọc", "Index", null, new { @class = "btn btn-outline-secondary" })
+        </div>
+    </div>
+}
+
+<h2 class="page-title mt-3">Danh sách đơn hàng</h2>
+
+@if (Model.Orders.TotalItemCount == 0)
+{
+    <p class="empty-result">KHÔNG CÓ</p>
+}
+else
+{
+    <p class="text-muted">Có @Model.Orders.TotalItemCount đơn hàng. Bấm vào tiêu đề cột để sắp xếp.</p>
+    @* Partial danh sach don hang dung chung voi trang Chi tiet khach hang *@
+    @Html.Partial("PVOrderList", Model.Orders, new ViewDataDictionary { { "ShowCustomer", true }, { "SortLink", sortLink } })
+
+    @Html.PagedListPager(Model.Orders, page => Url.Action("Index", new
+    {
+        page,
+        customerName = Model.CustomerName,
+        paymentStatus = Model.PaymentStatus,
+        orderDate = Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("yyyy-MM-dd") : null,
+        sortOrder = Model.SortOrder
+    }))
+}

@@ -1,0 +1,36 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.LoginVM
+@{
+    ViewBag.Title = "Đăng nhập";
+}
+
+<div class="auth-card auth-sm">
+    <h1 class="h4 mb-1">Đăng nhập</h1>
+    <p class="text-muted">Chưa có tài khoản? @Html.ActionLink("Đăng ký ngay", "Register")</p>
+
+    @using (Html.BeginForm("Login", "Account", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.ReturnUrl)
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.Username, new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.Username, new { @class = "form-control", autocomplete = "username", autofocus = "autofocus" })
+            @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger small" })
+        </div>
+        <div class="mb-3">
+            @Html.LabelFor(m => m.Password, new { @class = "form-label" })
+            @Html.PasswordFor(m => m.Password, new { @class = "form-control", autocomplete = "current-password" })
+            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small" })
+        </div>
+        <div class="form-check mb-3">
+            @Html.CheckBoxFor(m => m.RememberMe, new { @class = "form-check-input" })
+            @Html.LabelFor(m => m.RememberMe, new { @class = "form-check-label" })
+        </div>
+        <button type="submit" class="btn btn-buy w-100">Đăng nhập</button>
+    }
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

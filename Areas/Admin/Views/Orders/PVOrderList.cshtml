@@ -1,0 +1,67 @@
+﻿@model IEnumerable<NguyenTanPhu_23DH114527.Models.Order>
+@*
+    Partial danh sach don hang (tach tu trang Index cua Orders), dung chung cho:
+    - Orders/Index: ViewData["ShowCustomer"] = true, ViewData["SortLink"] = ham tao link sap xep
+    - Customers/Details: nhung danh sach don hang cua 1 khach hang
+*@
+@{
+    var showCustomer = ViewData["ShowCustomer"] as bool? == true;
+    var sortLink = ViewData["SortLink"] as Func<string, string, string>;
+}
+
+@helper Header(string text, string asc, string desc, Func<string, string, string> sortLink)
+{
+    if (sortLink == null)
+    {
+        @text
+    }
+    else
+    {
+        <a href="@sortLink(asc, desc)">@text ⇅</a>
+    }
+}
+
+@if (!Model.Any())
+{
+    <p class="empty-result">KHÔNG CÓ</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-admin">
+            <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>@Header("Ngày đặt hàng", "date_desc", "date_asc", sortLink)</th>
+                    @if (showCustomer)
+                    {
+                        <th>@Header("Tên khách hàng", "name_asc", "name_desc", sortLink)</th>
+                    }
+                    <th>@Header("Tổng giá trị", "total_desc", "total_asc", sortLink)</th>
+                    <th>Trạng thái thanh toán</th>
+                    <th>Trạng thái đơn</th>
+                    <th>Phương thức giao hàng</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model)
+                {
+                    <tr>
+                        <td>#@o.OrderID</td>
+                        <td>@o.OrderDate.ToString("dd/MM/yyyy")</td>
+                        @if (showCustomer)
+                        {
+                            <td>@(o.Customer != null ? o.Customer.CustomerName : "")</td>
+                        }
+                        <td class="text-nowrap">@o.TotalAmount.ToString("N0") đ</td>
+                        <td>@o.PaymentStatus</td>
+                        <td>@o.OrderStatus</td>
+                        <td>@o.DeliveryMethod</td>
+                        <td class="text-nowrap">@Html.ActionLink("Chi tiết đơn hàng", "DetailedOrder", "Orders", new { area = "Admin", id = o.OrderID }, null)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

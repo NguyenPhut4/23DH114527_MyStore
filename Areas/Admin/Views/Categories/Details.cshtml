@@ -1,0 +1,41 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Category
+@{
+    ViewBag.Title = "Chi tiết danh mục";
+}
+
+<h2 class="page-title">Danh mục: @Model.CategoryName</h2>
+<p>Có <strong>@Model.Products.Count</strong> sản phẩm thuộc danh mục này.</p>
+
+@if (Model.Products.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-admin">
+            <thead>
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá bán</th>
+                    <th>Tồn kho</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.Products.OrderBy(p => p.ProductName))
+                {
+                    <tr>
+                        <td><img src="@Url.Content(p.ImageUrl)" alt="@p.ProductName" class="product-thumb" /></td>
+                        <td>@p.ProductName</td>
+                        <td>@p.ProductPrice.ToString("N0") đ</td>
+                        <td>@p.Quantity</td>
+                        <td>@Html.ActionLink("Xem", "Details", "Products", new { id = p.ProductID }, new { @class = "btn btn-sm btn-info" })</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Sửa", "Edit", new { id = Model.CategoryID }, new { @class = "btn btn-warning" })
+    @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary" })
+</div>

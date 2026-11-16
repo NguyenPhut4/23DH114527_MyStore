@@ -1,0 +1,16 @@
+﻿@model NguyenTanPhu_23DH114527.Models.User
+@{
+    ViewBag.Title = "Xóa tài khoản";
+}
+
+<h2 class="page-title">Xóa tài khoản quản trị</h2>
+<h5>Bạn có chắc muốn xóa tài khoản <strong>@Model.Username</strong>?</h5>
+
+@using (Html.BeginForm("Delete", "Users", new { id = Model.Username }, FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="mt-3">
+        <button type="submit" class="btn btn-danger">Xóa</button>
+        @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary" })
+    </div>
+}

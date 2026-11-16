@@ -1,0 +1,103 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.DashboardVM
+@{
+    ViewBag.Title = "Thống kê";
+    Func<List<NguyenTanPhu_23DH114527.Models.ViewModel.ChartItem>, IHtmlString> toRows =
+        items => Html.Raw(Json.Encode(items.Select(i => new object[] { i.Label, i.Value }).ToArray()));
+}
+
+<h2 class="page-title">Trang thống kê</h2>
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card border-primary h-100"><div class="card-body">
+            <div class="text-muted">Tổng đơn hàng</div>
+            <div class="stat-value text-primary">@Model.TotalOrders</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card border-success h-100"><div class="card-body">
+            <div class="text-muted">Doanh thu (trừ đơn hủy)</div>
+            <div class="stat-value text-success">@Model.TotalRevenue.ToString("N0") đ</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card border-info h-100"><div class="card-body">
+            <div class="text-muted">Khách hàng</div>
+            <div class="stat-value text-info">@Model.TotalCustomers</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card border-warning h-100"><div class="card-body">
+            <div class="text-muted">Sản phẩm</div>
+            <div class="stat-value text-warning">@Model.TotalProducts</div>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card h-100"><div class="card-body">
+            <h5 class="card-title">Doanh thu 12 tháng gần nhất</h5>
+            <div id="revenueChart" style="height: 320px"></div>
+        </div></div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100"><div class="card-body">
+            <h5 class="card-title">Đơn hàng theo trạng thái</h5>
+            <div id="statusChart" style="height: 320px"></div>
+        </div></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100"><div class="card-body">
+            <h5 class="card-title">Top 5 sản phẩm bán chạy</h5>
+            <div id="topChart" style="height: 300px"></div>
+        </div></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100"><div class="card-body">
+            <h5 class="card-title d-flex justify-content-between">
+                <span>Hàng cần nhập (hết hàng)</span>
+                @Html.ActionLink("Quản lý kho", "Stock", "Products", null, new { @class = "btn btn-sm btn-outline-primary" })
+            </h5>
+            @Html.Partial("~/Areas/Admin/Views/Products/PVStockList.cshtml", Model.OutOfStockProducts)
+            <h6 class="mt-3">Sắp hết hàng</h6>
+            @Html.Partial("~/Areas/Admin/Views/Products/PVStockList.cshtml", Model.InStockProducts)
+        </div></div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(function () {
+            var money = { pattern: '#,### đ' };
+
+            var revenue = new google.visualization.DataTable();
+            revenue.addColumn('string', 'Tháng');
+            revenue.addColumn('number', 'Doanh thu');
+            revenue.addRows(@toRows(Model.RevenueByMonth));
+            new google.visualization.NumberFormat(money).format(revenue, 1);
+            new google.visualization.ColumnChart(document.getElementById('revenueChart')).draw(revenue, {
+                legend: 'none', colors: ['#2a7de1'], vAxis: { format: 'short' }, chartArea: { width: '85%', height: '75%' }
+            });
+
+            var status = new google.visualization.DataTable();
+            status.addColumn('string', 'Trạng thái');
+            status.addColumn('number', 'Số đơn');
+            status.addRows(@toRows(Model.OrdersByStatus));
+            new google.visualization.PieChart(document.getElementById('statusChart')).draw(status, {
+                pieHole: 0.4, legend: { position: 'bottom' }, chartArea: { width: '95%', height: '75%' },
+                colors: ['#f0ad4e', '#5bc0de', '#2a7de1', '#5cb85c', '#d9534f']
+            });
+
+            var top = new google.visualization.DataTable();
+            top.addColumn('string', 'Sản phẩm');
+            top.addColumn('number', 'Đã bán');
+            top.addRows(@toRows(Model.TopProducts));
+            new google.visualization.BarChart(document.getElementById('topChart')).draw(top, {
+                legend: 'none', colors: ['#5cb85c'], chartArea: { left: 220, width: '55%', height: '80%' }
+            });
+        });
+    </script>
+}

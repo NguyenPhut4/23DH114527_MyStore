@@ -1,0 +1,99 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.CheckoutVM
+@using NguyenTanPhu_23DH114527.Models
+@{
+    ViewBag.Title = "Thanh toán";
+}
+
+<h1 class="h3 mb-3">Thanh toán</h1>
+
+@using (Html.BeginForm("Checkout", "Order", FormMethod.Post, new { id = "checkoutForm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="panel mb-3">
+                <h2 class="h5">Hình thức giao hàng</h2>
+                @foreach (var m in DeliveryMethods.All)
+                {
+                    <div class="form-check option-card">
+                        <input class="form-check-input" type="radio" name="DeliveryMethod" id="dm_@m.GetHashCode()" value="@m" @(Model.DeliveryMethod == m ? "checked" : "") />
+                        <label class="form-check-label" for="dm_@m.GetHashCode()">
+                            @m <span class="text-muted small">@(m == DeliveryMethods.Fast ? "· Nhận hàng trong 1-2 ngày" : "· Nhận hàng trong 3-5 ngày")</span>
+                        </label>
+                    </div>
+                }
+                @Html.ValidationMessageFor(m => m.DeliveryMethod, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="panel mb-3">
+                <h2 class="h5">Hình thức thanh toán</h2>
+                @foreach (var m in PaymentMethods.All)
+                {
+                    <div class="form-check option-card">
+                        <input class="form-check-input" type="radio" name="PaymentMethod" id="pm_@m.GetHashCode()" value="@m" @(Model.PaymentMethod == m ? "checked" : "") />
+                        <label class="form-check-label" for="pm_@m.GetHashCode()">
+                            @m <span class="text-muted small">@(m == PaymentMethods.Cash ? "· Trả tiền khi nhận hàng (COD)" : "· Đơn sẽ chờ thanh toán đến khi nhận được chuyển khoản")</span>
+                        </label>
+                    </div>
+                }
+                @Html.ValidationMessageFor(m => m.PaymentMethod, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="panel">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Giao tới</h2>
+                    <button type="button" class="btn btn-link p-0" id="editAddressBtn" onclick="enableAddressEdit()">Chỉnh sửa</button>
+                </div>
+                <p class="mb-2 mt-2"><strong>@Model.CustomerName</strong> · @Model.CustomerPhone</p>
+                @Html.TextBoxFor(m => m.ShippingAddress, new { @class = "form-control", @readonly = "readonly", id = "ShippingAddress" })
+                <input type="text" id="newShippingAddress" class="form-control mt-2 d-none" placeholder="Nhập địa chỉ giao hàng mới" aria-label="Địa chỉ giao hàng mới" />
+                @Html.ValidationMessageFor(m => m.ShippingAddress, "", new { @class = "text-danger small" })
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="panel summary-panel">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Đơn hàng</h2>
+                    @Html.ActionLink("Thay đổi", "Index", "Cart")
+                </div>
+                <ul class="list-unstyled order-lines my-3">
+                    @foreach (var item in Model.Items)
+                    {
+                        <li>
+                            <span>@item.Quantity × @item.ProductName</span>
+                            <span class="text-nowrap">@item.TotalPrice.ToString("N0") đ</span>
+                        </li>
+                    }
+                </ul>
+                <div class="d-flex justify-content-between">
+                    <span>Phí vận chuyển</span><span>Miễn phí</span>
+                </div>
+                <div class="d-flex justify-content-between mt-2 fs-5">
+                    <span>Tổng tiền</span><strong class="text-danger">@Model.TotalAmount.ToString("N0") đ</strong>
+                </div>
+                <button type="submit" class="btn btn-buy btn-lg w-100 mt-3">Đặt hàng</button>
+            </div>
+        </div>
+    </div>
+}
+
+@section scripts {
+    <script>
+        function enableAddressEdit() {
+            var box = document.getElementById('newShippingAddress');
+            box.classList.remove('d-none');
+            box.value = document.getElementById('ShippingAddress').value;
+            box.focus();
+        }
+        // Khi bam Dat hang: neu co nhap dia chi moi thi gan vao ShippingAddress
+        document.getElementById('checkoutForm').addEventListener('submit', function updateShippingAddress() {
+            var box = document.getElementById('newShippingAddress');
+            if (!box.classList.contains('d-none') && box.value.trim() !== '') {
+                document.getElementById('ShippingAddress').value = box.value.trim();
+            }
+        });
+    </script>
+}

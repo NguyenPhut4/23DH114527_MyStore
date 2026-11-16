@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = "Quản lý kho hàng";
+    var inStock = (List<NguyenTanPhu_23DH114527.Models.Product>)ViewBag.InStock;
+    var outOfStock = (List<NguyenTanPhu_23DH114527.Models.Product>)ViewBag.OutOfStock;
+}
+
+<h2 class="page-title">Quản lý kho hàng</h2>
+
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabInStock" type="button" role="tab">
+            Danh sách hàng tồn (@inStock.Count)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabOutOfStock" type="button" role="tab">
+            Danh sách hàng cần nhập (@outOfStock.Count)
+        </button>
+    </li>
+</ul>
+<div class="tab-content pt-3">
+    <div class="tab-pane fade show active" id="tabInStock" role="tabpanel">
+        @Html.Partial("PVStockList", inStock)
+    </div>
+    <div class="tab-pane fade" id="tabOutOfStock" role="tabpanel">
+        @Html.Partial("PVStockList", outOfStock)
+    </div>
+</div>

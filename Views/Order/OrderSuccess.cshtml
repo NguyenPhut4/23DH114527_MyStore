@@ -1,0 +1,26 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Order
+@{
+    ViewBag.Title = "Đặt hàng thành công";
+}
+
+<div class="success-banner">
+    <div class="success-icon" aria-hidden="true">✓</div>
+    <div>
+        <h1 class="h4 mb-1">Đặt hàng thành công!</h1>
+        <p class="mb-0">Cảm ơn bạn. Mã đơn hàng của bạn là <strong>#@Model.OrderID</strong>.
+            @if (Model.PaymentMethod == NguyenTanPhu_23DH114527.Models.PaymentMethods.BankTransfer)
+            {
+                <span>Vui lòng chuyển khoản với nội dung <strong>DH@(Model.OrderID)</strong> để chúng tôi xử lý đơn.</span>
+            }
+        </p>
+    </div>
+</div>
+
+<div class="panel">
+    @Html.Partial("~/Views/Shared/_OrderInvoice.cshtml", Model)
+</div>
+
+<div class="d-flex gap-2 mt-3 flex-wrap">
+    @Html.ActionLink("Tiếp tục mua hàng", "Index", "Home", null, new { @class = "btn btn-buy" })
+    @Html.ActionLink("Xem lịch sử mua hàng", "MyOrder", "Order", null, new { @class = "btn btn-outline-buy" })
+</div>

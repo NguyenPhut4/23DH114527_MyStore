@@ -1,0 +1,51 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.ProductDetailVM
+@{
+    var p = Model.Product;
+    ViewBag.Title = p.ProductName;
+}
+
+@section styles {
+    <link href="~/Content/myStyle/CustomerDetailProduct.css" rel="stylesheet" />
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">@Html.ActionLink("Trang chủ", "Index")</li>
+        <li class="breadcrumb-item">@Html.ActionLink(p.Category.CategoryName, "ProductList", new { id = p.CategoryID })</li>
+        <li class="breadcrumb-item active" aria-current="page">@p.ProductName</li>
+    </ol>
+</nav>
+
+<section class="detail-card">
+    @* Partial Detail Product dung chung voi Admin, co them phan chon mua *@
+    @Html.Partial("~/Views/Shared/_ProductInfo.cshtml", p, new ViewDataDictionary { { "ShowBuyBox", true }, { "Quantity", Model.Quantity } })
+</section>
+
+@Html.Partial("_PVRelatedProduct", Model)
+@Html.Partial("_PVTopProduct", Model)
+
+@section scripts {
+    <script>
+        (function () {
+            var input = document.getElementById('quantity');
+            if (!input) return;
+            var out = document.getElementById('subtotal');
+            var price = parseFloat(out.dataset.price);
+            var max = parseInt(input.max, 10);
+            function update() {
+                var q = parseInt(input.value, 10);
+                if (isNaN(q) || q < 1) q = 1;
+                if (q > max) q = max;
+                input.value = q;
+                out.textContent = (price * q).toLocaleString('vi-VN') + ' đ';
+            }
+            document.querySelectorAll('.qty-control [data-step]').forEach(function (b) {
+                b.addEventListener('click', function () {
+                    input.value = (parseInt(input.value, 10) || 1) + parseInt(b.dataset.step, 10);
+                    update();
+                });
+            });
+            input.addEventListener('change', update);
+        })();
+    </script>
+}

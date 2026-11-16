@@ -1,0 +1,64 @@
+/* Trang Home */
+.hero {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 24px;
+    align-items: center;
+    background: linear-gradient(120deg, #14213d 0%, #23395d 60%, #2e4a73 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 40px;
+    overflow: hidden;
+}
+
+.hero h1 {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 800;
+}
+
+.hero p {
+    color: #dbe3f0;
+}
+
+.hero-kicker {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: .8rem;
+    color: #fca311 !important;
+    margin-bottom: 6px;
+}
+
+.hero-art {
+    position: relative;
+    height: 200px;
+}
+
+.hero-art .book {
+    position: absolute;
+    bottom: 0;
+    width: 90px;
+    border-radius: 4px 8px 8px 4px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
+}
+
+.hero-art .b1 { left: 10%; height: 170px; background: #e85d04; transform: rotate(-8deg); }
+.hero-art .b2 { left: 38%; height: 195px; background: #fca311; }
+.hero-art .b3 { left: 66%; height: 160px; background: #e5e5e5; transform: rotate(7deg); }
+
+.home-search {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 20px;
+}
+
+@media (max-width: 767px) {
+    .hero {
+        grid-template-columns: 1fr;
+        padding: 24px;
+    }
+
+    .hero-art {
+        display: none;
+    }
+}
