@@ -72,6 +72,22 @@ namespace NguyenTanPhu_23DH114527.Models.ViewModel
             return item.Quantity;
         }
 
+        // MUA LAI (theo de Ktra): san pham co trong gio voi so luong = 1.
+        // Da co san trong gio thi dat lai thanh 1; khong dong cham cac mon khac.
+        public void SetItemQuantityOne(Product product)
+        {
+            var item = items.FirstOrDefault(i => i.ProductID == product.ProductID);
+            if (item == null)
+            {
+                AddItem(product, 1);
+                return;
+            }
+            item.MaxQuantity = product.Quantity;
+            item.UnitPrice = product.ProductPrice;
+            item.Quantity = 1;
+            item.Selected = true;
+        }
+
         public void RemoveItem(int productId)
         {
             items.RemoveAll(i => i.ProductID == productId);

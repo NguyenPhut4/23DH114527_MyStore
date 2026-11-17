@@ -67,7 +67,10 @@
                     <article class="order-card">
                         <header class="order-card-head">
                             <span class="status-label status-@Array.IndexOf(OrderStatuses.All.ToArray(), order.OrderStatus)">@order.OrderStatus</span>
-                            <span class="text-muted small">Mã đơn #@order.OrderID · Ngày đặt @order.OrderDate.ToString("dd/MM/yyyy")</span>
+                            <span class="text-muted small">
+                                Mã đơn #@order.OrderID · Ngày đặt @order.OrderDate.ToString("dd/MM/yyyy") ·
+                                @Html.ActionLink("Hóa đơn", "OrderDetail", new { id = order.OrderID })
+                            </span>
                         </header>
 
                         @for (var i = 0; i < details.Count; i++)
@@ -118,7 +121,11 @@
                                     <input type="hidden" name="orderId" value="@order.OrderID" />
                                     <button type="submit" class="btn btn-outline-primary btn-sm">Mua lại</button>
                                 }
-                                @Html.ActionLink("Xem chi tiết", "OrderDetail", new { id = order.OrderID }, new { @class = "btn btn-outline-primary btn-sm" })
+                                @* De Ktra: XEM CHI TIET -> trang Xem chi tiet san pham *@
+                                @if (details.Any())
+                                {
+                                    @Html.ActionLink("Xem chi tiết", "ProductDetail", "Home", new { id = details[0].ProductID }, new { @class = "btn btn-outline-primary btn-sm" })
+                                }
                             </div>
                         </footer>
                     </article>

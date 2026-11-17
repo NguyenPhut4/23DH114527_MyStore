@@ -245,7 +245,6 @@ namespace NguyenTanPhu_23DH114527.Controllers
             }
 
             var cart = new CartService(Session).GetCart();
-            cart.SelectAll(false);
             var products = db.Products.Include(p => p.Category).Where(p => productIds.Contains(p.ProductID)).ToList();
             var added = 0;
             var outOfStock = new List<string>();
@@ -256,7 +255,8 @@ namespace NguyenTanPhu_23DH114527.Controllers
                     outOfStock.Add(p.ProductName);
                     continue;
                 }
-                cart.AddItem(p, 1);
+                // De Ktra: MUA LAI -> them vao gio voi so luong = 1
+                cart.SetItemQuantityOne(p);
                 added++;
             }
 
@@ -266,7 +266,7 @@ namespace NguyenTanPhu_23DH114527.Controllers
             }
             if (added > 0)
             {
-                TempData["Success"] = "Đã thêm " + added + " sản phẩm vào giỏ hàng.";
+                TempData["Success"] = "Đã thêm " + added + " sản phẩm vào giỏ hàng với số lượng = 1.";
             }
             return RedirectToAction("Index", "Cart");
         }
