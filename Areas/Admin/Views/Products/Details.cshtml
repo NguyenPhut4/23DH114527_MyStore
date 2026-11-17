@@ -5,7 +5,7 @@
 
 <h2 class="page-title">Chi tiết sản phẩm</h2>
 
-@Html.Partial("~/Views/Shared/_ProductInfo.cshtml", Model)
+@Html.Partial("PVProductInfo", Model)
 
 <div class="mt-3">
     @Html.ActionLink("Sửa", "Edit", new { id = Model.ProductID }, new { @class = "btn btn-warning" })

@@ -54,7 +54,7 @@ Tài khoản test: admin `admin` / `123456` · khách hàng `khach1` / `123456` 
 | | Index hiện tổng số hàng hóa | ✅ |
 | Quản lý hàng hóa | Sub-menu Quản lý hàng hóa | ✅ |
 | | Index 4-5 cột chính (tên, ảnh, giá, tồn, chủng loại) | ✅ |
-| | Detail giống trang Detail của Customer, không có nút MUA HÀNG | ✅ Partial dùng chung `Views/Shared/_ProductInfo.cshtml` |
+| | Detail giống trang Detail của Customer, không có nút MUA HÀNG | ✅ `PVProductInfo` (Details/Delete) gọi partial dùng chung `Views/Shared/_ProductInfo.cshtml` |
 | | Create/Edit có Data Annotation | ✅ |
 | | Upload ảnh sản phẩm | ✅ lưu vào `Content/images`, chỉ nhận file ảnh ≤ 5MB |
 | | Delete kiểm tra ràng buộc | ✅ đã có trong đơn hàng thì không cho xóa |

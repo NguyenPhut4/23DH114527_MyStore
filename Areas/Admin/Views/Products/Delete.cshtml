@@ -6,7 +6,7 @@
 <h2 class="page-title">Xóa sản phẩm</h2>
 <h5>Bạn có chắc muốn xóa sản phẩm này?</h5>
 
-@Html.Partial("~/Views/Shared/_ProductInfo.cshtml", Model)
+@Html.Partial("PVProductInfo", Model)
 
 @using (Html.BeginForm("Delete", "Products", new { id = Model.ProductID }, FormMethod.Post))
 {

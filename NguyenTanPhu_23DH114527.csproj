@@ -352,6 +352,9 @@
     <Content Include="Database\database2024.sql" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Admin\Views\Products\PVProductInfo.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
   </ItemGroup>
