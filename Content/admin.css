@@ -1,4 +1,4 @@
-/* ===== Admin site (FASTOR) ===== */
+/* ===== Admin site (Hiên Sách) ===== */
 body.admin {
     display: flex;
     flex-direction: column;
@@ -17,18 +17,27 @@ body.admin {
 }
 
 .admin-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: #fff;
-    color: #222 !important;
+    color: #14213d !important;
     font-weight: 800;
-    letter-spacing: 2px;
-    padding: 2px 12px;
-    border-radius: 2px;
-    font-size: 1.3rem;
+    letter-spacing: .5px;
+    padding: 3px 12px;
+    border-radius: 4px;
+    font-size: 1.25rem;
+    text-decoration: none;
 }
 
 .admin-logo span {
-    text-decoration: underline;
-    text-decoration-color: #2a7de1;
+    color: #e85d04;
+}
+
+.admin-logo-lg {
+    display: flex;
+    justify-content: center;
+    font-size: 1.6rem;
 }
 
 .admin-footer {

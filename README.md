@@ -1,4 +1,4 @@
-# FASTOR Books – Website bán sách (ASP.NET MVC5 + Entity Framework 6)
+# Hiên Sách – Website bán sách (ASP.NET MVC5 + Entity Framework 6)
 
 Đồ án môn Lập trình Web – phần Back-end (BE).
 Sinh viên: **Nguyễn Tấn Phú – 23DH114527**

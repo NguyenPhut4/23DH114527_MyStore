@@ -1,4 +1,4 @@
-/* ===== Customer site (FASTOR Books) ===== */
+/* ===== Customer site (Hiên Sách) ===== */
 :root {
     --ink: #1f2933;
     --muted: #6b7280;
@@ -48,9 +48,13 @@ body.customer {
 }
 
 .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-weight: 800;
-    letter-spacing: 3px;
+    letter-spacing: .5px;
     font-size: 1.5rem;
+    white-space: nowrap;
     color: var(--brand) !important;
     text-decoration: none;
     margin-right: 16px;
