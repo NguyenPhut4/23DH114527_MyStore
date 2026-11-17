@@ -67,10 +67,7 @@
                     <article class="order-card">
                         <header class="order-card-head">
                             <span class="status-label status-@Array.IndexOf(OrderStatuses.All.ToArray(), order.OrderStatus)">@order.OrderStatus</span>
-                            <span class="text-muted small">
-                                Mã đơn #@order.OrderID · Ngày đặt @order.OrderDate.ToString("dd/MM/yyyy") ·
-                                @Html.ActionLink("Hóa đơn", "OrderDetail", new { id = order.OrderID })
-                            </span>
+                            <span class="text-muted small">Mã đơn #@order.OrderID · Ngày đặt @order.OrderDate.ToString("dd/MM/yyyy")</span>
                         </header>
 
                         @for (var i = 0; i < details.Count; i++)
@@ -87,14 +84,16 @@
                                 </a>
                                 <div class="order-item-info">
                                     <a href="@Url.Action("ProductDetail", "Home", new { id = od.ProductID })" class="order-item-name">@od.Product.ProductName</a>
+                                    @* De Ktra: moi san pham co nut MUA LAI (vao gio, so luong = 1)
+                                       va XEM CHI TIET (trang chi tiet cua CHINH san pham nay) *@
                                     <div class="order-item-actions">
                                         @using (Html.BeginForm("BuyAgain", "Order", FormMethod.Post, new { @class = "d-inline" }))
                                         {
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="productId" value="@od.ProductID" />
-                                            <button type="submit" class="link-btn">Mua lại</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">Mua lại</button>
                                         }
-                                        <a href="@Url.Action("ProductDetail", "Home", new { id = od.ProductID })" class="link-btn">Xem chi tiết</a>
+                                        <a href="@Url.Action("ProductDetail", "Home", new { id = od.ProductID })" class="btn btn-sm btn-outline-secondary">Xem chi tiết</a>
                                     </div>
                                 </div>
                                 <div class="order-item-price">@((od.TotalPrice ?? od.Quantity * od.UnitPrice).ToString("N0")) đ</div>
@@ -119,13 +118,9 @@
                                 {
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="orderId" value="@order.OrderID" />
-                                    <button type="submit" class="btn btn-outline-primary btn-sm">Mua lại</button>
+                                    <button type="submit" class="btn btn-light border btn-sm">Mua lại cả đơn</button>
                                 }
-                                @* De Ktra: XEM CHI TIET -> trang Xem chi tiet san pham *@
-                                @if (details.Any())
-                                {
-                                    @Html.ActionLink("Xem chi tiết", "ProductDetail", "Home", new { id = details[0].ProductID }, new { @class = "btn btn-outline-primary btn-sm" })
-                                }
+                                @Html.ActionLink("Xem hóa đơn", "OrderDetail", new { id = order.OrderID }, new { @class = "btn btn-light border btn-sm" })
                             </div>
                         </footer>
                     </article>
