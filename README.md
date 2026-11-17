@@ -43,6 +43,21 @@ Website bán sách gồm 2 phần:
 
 Kết quả đối chiếu Checklist BE: xem [KIEM_TRA_CHECKLIST.md](KIEM_TRA_CHECKLIST.md).
 
+## Ràng buộc dữ liệu
+- **Khóa ngoại** (`ON DELETE NO ACTION`): không xóa được bản ghi đang được dùng ở bảng khác. Ví dụ: danh mục còn sản phẩm, sản phẩm đã có trong đơn hàng.
+- **CHECK**: giá > 0, tồn kho ≥ 0, số lượng mua > 0, trạng thái đơn / trạng thái thanh toán / vai trò phải đúng danh sách cho phép.
+- **UNIQUE**: mỗi tài khoản chỉ gắn 1 khách hàng, số điện thoại không trùng.
+- Code kiểm tra thêm bằng Data Annotation. Nếu DB từ chối dữ liệu, web hiện thông báo tiếng Việt (`Models/DbErrors.cs`) thay vì trang lỗi.
+
+## Sao lưu và khôi phục
+| Tình huống | Cách làm |
+|---|---|
+| Sao lưu dữ liệu hiện tại | Chạy `Database/backup_mystore.ps1`. File `.bak` lưu trong thư mục Backup mặc định của SQL Server |
+| Xóa nhầm dữ liệu hoặc mất cả database | Chạy `Database/restore_mystore.ps1`: tự lấy bản backup mới nhất và ghi đè lên `MyStore` (kể cả khi DB đã bị xóa) |
+| Máy mới hoặc chưa có backup | Tạo DB `MyStore`, rồi chạy `database2024.sql` và `update_mystore.sql`. Chỉ có dữ liệu mẫu |
+
+Máy dùng instance khác thì thêm tham số, ví dụ `-Server "TEN_MAY\SQLEXPRESS"`.
+
 ## Cấu trúc chính
 ```
 Areas/Admin/            Khu vực quản trị (Controllers, Views, Filters/AdminAuthorize)

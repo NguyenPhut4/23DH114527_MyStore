@@ -62,7 +62,12 @@ namespace NguyenTanPhu_23DH114527.Controllers
             };
             db.Users.Add(user);
             db.Customers.Add(customer);
-            db.SaveChanges();
+            var error = DbErrors.Save(db);
+            if (error != null)
+            {
+                ModelState.AddModelError("", "Đăng ký không thành công: " + error);
+                return View(model);
+            }
 
             TempData["Success"] = "Đăng ký thành công! Mời bạn đăng nhập.";
             return RedirectToAction("Login", new { username = model.Username });

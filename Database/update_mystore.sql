@@ -119,3 +119,32 @@ UPDATE dbo.Product SET ProductImage = N'~/Content/images/books/de-men-phieu-luu-
 UPDATE dbo.Product SET ProductImage = N'~/Content/images/books/hoang-tu-be.svg' WHERE ProductName = N'Hoàng Tử Bé' AND ProductImage IS NULL;
 UPDATE dbo.Product SET ProductImage = N'~/Content/images/books/doraemon-tap-1.svg' WHERE ProductName = N'Doraemon Tập 1' AND ProductImage IS NULL;
 GO
+
+-- 4. Rang buoc du lieu (CHECK / UNIQUE) - chan du lieu sai ngay o tang DB,
+--    ke ca khi sua truc tiep bang SSMS. Chay lai nhieu lan van an toan.
+SET QUOTED_IDENTIFIER ON;
+IF OBJECT_ID('dbo.CK_Product_Price') IS NULL
+    ALTER TABLE dbo.Product ADD CONSTRAINT CK_Product_Price CHECK (ProductPrice > 0);
+IF OBJECT_ID('dbo.CK_Product_Quantity') IS NULL
+    ALTER TABLE dbo.Product ADD CONSTRAINT CK_Product_Quantity CHECK (Quantity >= 0);
+IF OBJECT_ID('dbo.CK_Product_Sold') IS NULL
+    ALTER TABLE dbo.Product ADD CONSTRAINT CK_Product_Sold CHECK (SoldQuantity >= 0);
+IF OBJECT_ID('dbo.CK_OrderDetail_Quantity') IS NULL
+    ALTER TABLE dbo.OrderDetail ADD CONSTRAINT CK_OrderDetail_Quantity CHECK (Quantity > 0);
+IF OBJECT_ID('dbo.CK_OrderDetail_UnitPrice') IS NULL
+    ALTER TABLE dbo.OrderDetail ADD CONSTRAINT CK_OrderDetail_UnitPrice CHECK (UnitPrice >= 0);
+IF OBJECT_ID('dbo.CK_Order_Total') IS NULL
+    ALTER TABLE dbo.[Order] ADD CONSTRAINT CK_Order_Total CHECK (TotalAmount >= 0);
+IF OBJECT_ID('dbo.CK_Order_Status') IS NULL
+    ALTER TABLE dbo.[Order] ADD CONSTRAINT CK_Order_Status
+        CHECK (OrderStatus IN (N'Chờ thanh toán', N'Đang xử lý', N'Đang vận chuyển', N'Đã giao', N'Đã hủy'));
+IF OBJECT_ID('dbo.CK_Order_PaymentStatus') IS NULL
+    ALTER TABLE dbo.[Order] ADD CONSTRAINT CK_Order_PaymentStatus
+        CHECK (PaymentStatus IS NULL OR PaymentStatus IN (N'Chưa thanh toán', N'Đã thanh toán'));
+IF OBJECT_ID('dbo.CK_User_Role') IS NULL
+    ALTER TABLE dbo.[User] ADD CONSTRAINT CK_User_Role CHECK (UserRole IN (N'A', N'C'));
+IF OBJECT_ID('dbo.UQ_Customer_Username') IS NULL
+    ALTER TABLE dbo.Customer ADD CONSTRAINT UQ_Customer_Username UNIQUE (Username);
+IF OBJECT_ID('dbo.UQ_Customer_Phone') IS NULL
+    ALTER TABLE dbo.Customer ADD CONSTRAINT UQ_Customer_Phone UNIQUE (CustomerPhone);
+GO

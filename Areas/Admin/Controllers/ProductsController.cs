@@ -91,9 +91,13 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
                 SaveUploadedImage(product);
                 product.SoldQuantity = 0;
                 db.Products.Add(product);
-                db.SaveChanges();
-                TempData["Success"] = "Đã thêm sản phẩm \"" + product.ProductName + "\"";
-                return RedirectToAction("Index");
+                var error = DbErrors.Save(db);
+                if (error == null)
+                {
+                    TempData["Success"] = "Đã thêm sản phẩm \"" + product.ProductName + "\"";
+                    return RedirectToAction("Index");
+                }
+                ModelState.AddModelError("", error);
             }
             LoadCategories(product.CategoryID);
             return View(product);
@@ -131,10 +135,13 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
                 existing.ProductPrice = product.ProductPrice;
                 existing.ProductImage = product.ProductImage;
                 existing.Quantity = product.Quantity;
-                db.SaveChanges();
-
-                TempData["Success"] = "Đã cập nhật sản phẩm";
-                return RedirectToAction("Index");
+                var error = DbErrors.Save(db);
+                if (error == null)
+                {
+                    TempData["Success"] = "Đã cập nhật sản phẩm";
+                    return RedirectToAction("Index");
+                }
+                ModelState.AddModelError("", error);
             }
             LoadCategories(product.CategoryID);
             return View(product);
@@ -165,7 +172,12 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
             }
 
             db.Products.Remove(product);
-            db.SaveChanges();
+            var error = DbErrors.Save(db);
+            if (error != null)
+            {
+                TempData["Error"] = error;
+                return RedirectToAction("Delete", new { id });
+            }
             TempData["Success"] = "Đã xóa sản phẩm";
             return RedirectToAction("Index");
         }

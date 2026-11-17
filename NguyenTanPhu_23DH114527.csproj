@@ -355,6 +355,9 @@
     <Content Include="Areas\Admin\Views\Products\PVProductInfo.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\DbErrors.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
   </ItemGroup>

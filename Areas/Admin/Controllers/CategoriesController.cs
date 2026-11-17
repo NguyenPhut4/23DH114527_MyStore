@@ -40,9 +40,13 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 db.Categories.Add(category);
-                db.SaveChanges();
-                TempData["Success"] = "Đã thêm danh mục \"" + category.CategoryName + "\"";
-                return RedirectToAction("Index");
+                var error = DbErrors.Save(db);
+                if (error == null)
+                {
+                    TempData["Success"] = "Đã thêm danh mục \"" + category.CategoryName + "\"";
+                    return RedirectToAction("Index");
+                }
+                ModelState.AddModelError("", error);
             }
             return View(category);
         }
@@ -62,9 +66,13 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 db.Entry(category).State = EntityState.Modified;
-                db.SaveChanges();
-                TempData["Success"] = "Đã cập nhật danh mục";
-                return RedirectToAction("Index");
+                var error = DbErrors.Save(db);
+                if (error == null)
+                {
+                    TempData["Success"] = "Đã cập nhật danh mục";
+                    return RedirectToAction("Index");
+                }
+                ModelState.AddModelError("", error);
             }
             return View(category);
         }
@@ -95,7 +103,12 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
             }
 
             db.Categories.Remove(category);
-            db.SaveChanges();
+            var error = DbErrors.Save(db);
+            if (error != null)
+            {
+                TempData["Error"] = error;
+                return RedirectToAction("Delete", new { id });
+            }
             TempData["Success"] = "Đã xóa danh mục";
             return RedirectToAction("Index");
         }

@@ -119,7 +119,13 @@ namespace NguyenTanPhu_23DH114527.Controllers
             order.TotalAmount = order.OrderDetails.Sum(od => od.Quantity * od.UnitPrice);
 
             db.Orders.Add(order);
-            db.SaveChanges();
+            // CK_Product_Quantity chan ton kho am neu 2 nguoi cung mua mon cuoi cung
+            var error = DbErrors.Save(db);
+            if (error != null)
+            {
+                TempData["Error"] = "Đặt hàng không thành công: " + error + " Vui lòng kiểm tra lại giỏ hàng.";
+                return RedirectToAction("Index", "Cart");
+            }
 
             // Chi bo cac san pham da mua ra khoi gio
             cart.RemoveSelected();
