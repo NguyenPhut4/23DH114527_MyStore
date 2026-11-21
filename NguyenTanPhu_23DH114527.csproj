@@ -358,6 +358,9 @@
     <Compile Include="Models\DbErrors.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\OrderWorkflow.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
   </ItemGroup>

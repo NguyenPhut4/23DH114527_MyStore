@@ -76,9 +76,10 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
         }
 
         // POST: Admin/Orders/UpdateStatus/5
+        // Trang thai thanh toan khong chon tay: tu cap nhat theo quy tac trong Models/OrderWorkflow.cs
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult UpdateStatus(int id, string orderStatus, string paymentStatus)
+        public ActionResult UpdateStatus(int id, string orderStatus, bool paymentReceived = false)
         {
             var order = FindOrder(id);
             if (order == null)
@@ -86,36 +87,17 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
                 return HttpNotFound();
             }
 
-            if (!OrderStatuses.All.Contains(orderStatus))
-            {
-                ModelState.AddModelError("OrderStatus", "Trạng thái đơn không hợp lệ");
-            }
-            if (!PaymentStatuses.All.Contains(paymentStatus))
-            {
-                ModelState.AddModelError("PaymentStatus", "Trạng thái thanh toán không hợp lệ");
-            }
-
-            var wasCancelled = order.OrderStatus == OrderStatuses.Cancelled;
             var willCancel = orderStatus == OrderStatuses.Cancelled;
-
-            // Khoi phuc don da huy: phai con du hang trong kho
-            if (ModelState.IsValid && wasCancelled && !willCancel)
+            var error = OrderWorkflow.Apply(order, orderStatus, paymentReceived);
+            if (error != null)
             {
-                var missing = order.OrderDetails.FirstOrDefault(od => od.Product.Quantity < od.Quantity);
-                if (missing != null)
-                {
-                    ModelState.AddModelError("", "Không đủ tồn kho cho sản phẩm \"" + missing.Product.ProductName + "\" để khôi phục đơn.");
-                }
-            }
-
-            if (!ModelState.IsValid)
-            {
+                ModelState.AddModelError("", error);
                 LoadStatusLists(order);
                 return View(order);
             }
 
-            // Huy don -> tra hang ve kho; khoi phuc don -> tru lai kho
-            if (!wasCancelled && willCancel)
+            // Huy don -> tra hang ve kho
+            if (willCancel)
             {
                 foreach (var od in order.OrderDetails)
                 {
@@ -123,20 +105,16 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
                     od.Product.SoldQuantity = System.Math.Max(0, od.Product.SoldQuantity - od.Quantity);
                 }
             }
-            else if (wasCancelled && !willCancel)
+
+            error = DbErrors.Save(db);
+            if (error != null)
             {
-                foreach (var od in order.OrderDetails)
-                {
-                    od.Product.Quantity -= od.Quantity;
-                    od.Product.SoldQuantity += od.Quantity;
-                }
+                TempData["Error"] = error;
+                return RedirectToAction("UpdateStatus", new { id });
             }
 
-            order.OrderStatus = orderStatus;
-            order.PaymentStatus = paymentStatus;
-            db.SaveChanges();
-
-            TempData["Success"] = "Đã cập nhật trạng thái đơn hàng #" + order.OrderID;
+            TempData["Success"] = "Đơn hàng #" + order.OrderID + ": " + order.OrderStatus + " · " + order.PaymentStatus
+                                  + (OrderWorkflow.RefundNote(order) != null ? ". " + OrderWorkflow.RefundNote(order) : "");
             return RedirectToAction("DetailedOrder", new { id = order.OrderID });
         }
 
@@ -154,8 +132,8 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
 
         private void LoadStatusLists(Order order)
         {
-            ViewBag.OrderStatusList = new SelectList(OrderStatuses.All, order.OrderStatus);
-            ViewBag.PaymentStatusList = new SelectList(PaymentStatuses.All, order.PaymentStatus);
+            // Chi cho chon cac trang thai hop le tiep theo
+            ViewBag.NextStatuses = OrderWorkflow.NextStatuses(order);
         }
 
         protected override void Dispose(bool disposing)

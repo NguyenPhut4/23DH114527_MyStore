@@ -148,3 +148,34 @@ IF OBJECT_ID('dbo.UQ_Customer_Username') IS NULL
 IF OBJECT_ID('dbo.UQ_Customer_Phone') IS NULL
     ALTER TABLE dbo.Customer ADD CONSTRAINT UQ_Customer_Phone UNIQUE (CustomerPhone);
 GO
+
+-- 5. Logic trang thai don <-> trang thai thanh toan (xem Models/OrderWorkflow.cs)
+--    a) Chuan hoa du lieu cu cho dung logic (chi sua cac dong dang vo ly)
+SET QUOTED_IDENTIFIER ON;
+-- "Cho thanh toan" chi co o don chuyen khoan, va luon "Chua thanh toan"
+UPDATE dbo.[Order] SET PaymentMethod = N'Chuyển khoản', PaymentStatus = N'Chưa thanh toán'
+WHERE OrderStatus = N'Chờ thanh toán' AND (ISNULL(PaymentMethod, N'') <> N'Chuyển khoản' OR ISNULL(PaymentStatus, N'') <> N'Chưa thanh toán');
+-- Chuyen khoan da xu ly / van chuyen / giao -> phai "Da thanh toan"
+UPDATE dbo.[Order] SET PaymentStatus = N'Đã thanh toán'
+WHERE PaymentMethod = N'Chuyển khoản' AND OrderStatus IN (N'Đang xử lý', N'Đang vận chuyển', N'Đã giao') AND ISNULL(PaymentStatus, N'') <> N'Đã thanh toán';
+-- Tien mat (COD): chi "Da thanh toan" khi "Da giao"
+UPDATE dbo.[Order] SET PaymentStatus = N'Chưa thanh toán'
+WHERE ISNULL(PaymentMethod, N'Thanh toán tiền mặt') = N'Thanh toán tiền mặt' AND OrderStatus <> N'Đã giao' AND ISNULL(PaymentStatus, N'') <> N'Chưa thanh toán';
+UPDATE dbo.[Order] SET PaymentStatus = N'Đã thanh toán'
+WHERE ISNULL(PaymentMethod, N'Thanh toán tiền mặt') = N'Thanh toán tiền mặt' AND OrderStatus = N'Đã giao' AND ISNULL(PaymentStatus, N'') <> N'Đã thanh toán';
+GO
+
+--    b) Rang buoc trong DB: chan moi to hop vo ly (ke ca sua bang SSMS)
+SET QUOTED_IDENTIFIER ON;
+IF OBJECT_ID('dbo.CK_Order_StatusPayment') IS NULL
+    ALTER TABLE dbo.[Order] ADD CONSTRAINT CK_Order_StatusPayment CHECK (
+        -- Cho thanh toan: chi don chuyen khoan, chua thanh toan
+        (OrderStatus <> N'Chờ thanh toán' OR (PaymentMethod = N'Chuyển khoản' AND PaymentStatus = N'Chưa thanh toán'))
+        -- Da giao: luon da thanh toan
+        AND (OrderStatus <> N'Đã giao' OR PaymentStatus = N'Đã thanh toán')
+        -- Chuyen khoan: xu ly / van chuyen / giao thi phai da thanh toan
+        AND (ISNULL(PaymentMethod, N'') <> N'Chuyển khoản' OR OrderStatus NOT IN (N'Đang xử lý', N'Đang vận chuyển', N'Đã giao') OR PaymentStatus = N'Đã thanh toán')
+        -- Tien mat (COD): chi da thanh toan khi da giao
+        AND (ISNULL(PaymentMethod, N'Thanh toán tiền mặt') <> N'Thanh toán tiền mặt' OR OrderStatus = N'Đã giao' OR PaymentStatus = N'Chưa thanh toán')
+    );
+GO

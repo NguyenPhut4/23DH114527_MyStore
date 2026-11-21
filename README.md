@@ -43,6 +43,17 @@ Website bán sách gồm 2 phần:
 
 Kết quả đối chiếu Checklist BE: xem [KIEM_TRA_CHECKLIST.md](KIEM_TRA_CHECKLIST.md).
 
+## Quy tắc trạng thái đơn hàng
+Trạng thái thanh toán **không chọn tay**: hệ thống tự cập nhật theo trạng thái đơn (`Models/OrderWorkflow.cs`), và DB có ràng buộc `CK_Order_StatusPayment` chặn các tổ hợp vô lý.
+
+| Hình thức | Luồng hợp lệ |
+|---|---|
+| **Chuyển khoản** | Chờ thanh toán → *(Admin tick "Đã nhận tiền")* → Đang xử lý → Đang vận chuyển → Đã giao. Chờ thanh toán / Đang xử lý có thể → Đã hủy. Đang vận chuyển chỉ còn → Đã giao |
+| **Tiền mặt (COD)** | Đặt hàng là Đang xử lý → Đang vận chuyển → Đã giao (tự thành "Đã thanh toán"). Đang xử lý / Đang vận chuyển có thể → Đã hủy |
+
+- "Đã giao" và "Đã hủy" là trạng thái cuối, không đổi được nữa. Hủy đơn sẽ trả hàng về kho.
+- Đơn chuyển khoản đã thu tiền mà bị hủy thì hệ thống nhắc cần hoàn tiền cho khách.
+
 ## Ràng buộc dữ liệu
 - **Khóa ngoại** (`ON DELETE NO ACTION`): không xóa được bản ghi đang được dùng ở bảng khác. Ví dụ: danh mục còn sản phẩm, sản phẩm đã có trong đơn hàng.
 - **CHECK**: giá > 0, tồn kho ≥ 0, số lượng mua > 0, trạng thái đơn / trạng thái thanh toán / vai trò phải đúng danh sách cho phép.
