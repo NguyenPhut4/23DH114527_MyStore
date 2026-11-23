@@ -1,15 +1,15 @@
 # =====================================================================
-#  KHOI PHUC DATABASE MyStore TU FILE BACKUP (.bak)
-#  - Khong truyen -BakFile: tu lay ban backup MOI NHAT cua MyStore.
-#  - CANH BAO: du lieu hien tai cua MyStore se bi GHI DE bang du lieu trong file backup.
-#  - Dung duoc ca khi database MyStore da bi xoa hoan toan (se tao lai).
+#  KHOI PHUC DATABASE HienSach TU FILE BACKUP (.bak)
+#  - Khong truyen -BakFile: tu lay ban backup MOI NHAT cua HienSach.
+#  - CANH BAO: du lieu hien tai cua HienSach se bi GHI DE bang du lieu trong file backup.
+#  - Dung duoc ca khi database HienSach da bi xoa hoan toan (se tao lai).
 #
 #  Cach chay:  chuot phai -> Run with PowerShell
-#         hoac: powershell -ExecutionPolicy Bypass -File Database\restore_mystore.ps1 [-BakFile "D:\...\MyStore_x.bak"]
+#         hoac: powershell -ExecutionPolicy Bypass -File Database\restore_hiensach.ps1 [-BakFile "D:\...\HienSach_x.bak"]
 # =====================================================================
 param(
     [string]$Server = "$env:COMPUTERNAME\LAPTOP",
-    [string]$Database = "MyStore",
+    [string]$Database = "HienSach",
     [string]$BakFile = "",
     [switch]$Force
 )
@@ -24,7 +24,7 @@ ORDER BY b.backup_finish_date DESC;
 "@ | Where-Object { $_ -match '\.bak$' } | Select-Object -First 1)
 }
 if (-not $BakFile) {
-    Write-Host "Khong tim thay file backup nao cua $Database. Hay chay backup_mystore.ps1 truoc." -ForegroundColor Red
+    Write-Host "Khong tim thay file backup nao cua $Database. Hay chay backup_hiensach.ps1 truoc." -ForegroundColor Red
     exit 1
 }
 

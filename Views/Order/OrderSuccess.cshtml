@@ -24,5 +24,6 @@
 
 <div class="d-flex gap-2 mt-3 flex-wrap">
     @Html.ActionLink("Tiếp tục mua hàng", "Index", "Home", null, new { @class = "btn btn-buy" })
+    <button type="button" class="btn btn-outline-buy" onclick="window.print()">In hóa đơn</button>
     @Html.ActionLink("Xem lịch sử mua hàng", "MyOrder", "Order", null, new { @class = "btn btn-outline-buy" })
 </div>

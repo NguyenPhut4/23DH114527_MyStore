@@ -30,5 +30,6 @@
             <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?')">Hủy đơn hàng</button>
         }
     }
+    <button type="button" class="btn btn-outline-buy" onclick="window.print()">In hóa đơn</button>
     @Html.ActionLink("Quay lại đơn hàng của tôi", "MyOrder", null, new { @class = "btn btn-outline-buy" })
 </div>

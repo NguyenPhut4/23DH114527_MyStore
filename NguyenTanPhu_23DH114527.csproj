@@ -204,7 +204,6 @@
     </Content>
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
-    <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -230,7 +229,6 @@
     <Content Include="Areas\Admin\Views\_ViewStart.cshtml" />
     <Content Include="Content\admin.css" />
     <Content Include="Content\images\no-image.svg" />
-    <Content Include="Database\update_mystore.sql" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\AccountController.cs" />
@@ -264,7 +262,6 @@
   <ItemGroup>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Database\database2024.sql" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
@@ -412,6 +409,12 @@
     <Content Include="Views\Shared\_BookCard.cshtml" />
     <Content Include="Views\Shared\_BookInfo.cshtml" />
     <Content Include="Views\Shared\_BookSlider.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Models\LoginThrottle.cs" />
+    <Content Include="Views\Error\NotFound.cshtml" />
+    <Content Include="Views\Error\Server.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

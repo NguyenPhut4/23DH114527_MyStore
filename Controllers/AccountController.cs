@@ -87,12 +87,21 @@ namespace NguyenTanPhu_23DH114527.Controllers
             }
 
             var username = model.Username.Trim();
+            var ip = Request.UserHostAddress;
+            var locked = LoginThrottle.MinutesLocked(username, ip);
+            if (locked > 0)
+            {
+                ModelState.AddModelError("", "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau " + locked + " phút.");
+                return View(model);
+            }
             var user = db.Users.FirstOrDefault(u => u.Username == username);
             if (user == null || !Auth.Verify(model.Password, user.PasswordHash))
             {
+                LoginThrottle.Fail(username, ip);
                 ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng");
                 return View(model);
             }
+            LoginThrottle.Reset(username, ip);
             if (!user.IsActive)
             {
                 ModelState.AddModelError("", "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.");

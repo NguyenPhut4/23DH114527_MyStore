@@ -1,13 +1,13 @@
 # =====================================================================
-#  SAO LUU DATABASE MyStore
-#  Tao file MyStore_<ngay>_<gio>.bak trong thu muc Backup mac dinh cua SQL Server.
+#  SAO LUU DATABASE HienSach
+#  Tao file HienSach_<ngay>_<gio>.bak trong thu muc Backup mac dinh cua SQL Server.
 #
 #  Cach chay:  chuot phai -> Run with PowerShell
-#         hoac: powershell -ExecutionPolicy Bypass -File Database\backup_mystore.ps1 -Server "TEN_MAY\SQLEXPRESS"
+#         hoac: powershell -ExecutionPolicy Bypass -File Database\backup_hiensach.ps1 -Server "TEN_MAY\SQLEXPRESS"
 # =====================================================================
 param(
     [string]$Server = "$env:COMPUTERNAME\LAPTOP",
-    [string]$Database = "MyStore"
+    [string]$Database = "HienSach"
 )
 
 $stamp = Get-Date -Format "yyyyMMdd_HHmmss"
@@ -27,7 +27,7 @@ $out | ForEach-Object { Write-Host "  $_" }
 if ($LASTEXITCODE -eq 0) {
     $file = ($out | Where-Object { $_ -like 'FILE=*' }) -replace '^FILE=', ''
     Write-Host "`nSao luu thanh cong: $file" -ForegroundColor Green
-    Write-Host "Khoi phuc: chay Database\restore_mystore.ps1" -ForegroundColor Gray
+    Write-Host "Khoi phuc: chay Database\restore_hiensach.ps1" -ForegroundColor Gray
 } else {
     Write-Host "`nSao luu THAT BAI (xem thong bao o tren)." -ForegroundColor Red
 }
