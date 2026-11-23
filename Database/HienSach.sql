@@ -499,20 +499,20 @@ INSERT INTO dbo.Authors (AuthorId, AuthorName, BirthYear, Nationality, Biography
 SET IDENTITY_INSERT dbo.Authors OFF;
 SET IDENTITY_INSERT dbo.Books ON;
 INSERT INTO dbo.Books (BookId, ISBN, Title, CategoryId, PublisherId, Price, StockQuantity, PageCount, PublishYear, CoverImage, IsActive) VALUES
-    (1, '9786041000011', N'Mắt Biếc', 5, 1, 110000, 120, 300, 2019, '/images/books/9786041000011.jpg', 1),
-    (2, '9786041000028', N'Cho Tôi Xin Một Vé Đi Tuổi Thơ', 5, 1, 85000, 80, 220, 2018, '/images/books/9786041000028.jpg', 1),
-    (3, '9786041000035', N'Tôi Thấy Hoa Vàng Trên Cỏ Xanh', 5, 1, 125000, 100, 378, 2018, '/images/books/9786041000035.jpg', 1),
-    (4, '9786042000017', N'Dế Mèn Phiêu Lưu Ký', 4, 2, 60000, 150, 144, 2020, '/images/books/9786042000017.jpg', 1),
-    (5, '9786043000016', N'Nhà Giả Kim', 5, 3, 79000, 200, 228, 2020, '/images/books/9786043000016.jpg', 1),
-    (6, '9786044000015', N'Đắc Nhân Tâm', 7, 4, 86000, 180, 320, 2021, '/images/books/9786044000015.jpg', 1),
-    (7, '9786043000023', N'Tuổi Trẻ Đáng Giá Bao Nhiêu', 7, 3, 90000, 90, 285, 2019, '/images/books/9786043000023.jpg', 1),
-    (8, '9786045000014', N'Sapiens: Lược Sử Loài Người', 9, 5, 259000, 60, 556, 2021, '/images/books/9786045000014.jpg', 1),
-    (9, '9786047000012', N'Clean Code (Bản tiếng Việt)', 10, 7, 320000, 40, 464, 2022, '/images/books/9786047000012.jpg', 1),
-    (10, '9786046000013', N'The Pragmatic Programmer (Bản tiếng Việt)', 10, 6, 299000, 35, 352, 2023, '/images/books/9786046000013.jpg', 1),
-    (11, '9786041000042', N'Cánh Đồng Bất Tận', 6, 1, 95000, 70, 216, 2019, '/images/books/9786041000042.jpg', 1),
-    (12, '9786046000020', N'Homo Deus: Lược Sử Tương Lai', 9, 6, 279000, 50, 512, 2022, '/images/books/9786046000020.jpg', 1),
-    (13, '9786044000022', N'Nghĩ Giàu Và Làm Giàu', 8, 4, 115000, 65, 400, 2020, '/images/books/9786044000022.jpg', 1),
-    (14, '9786042000024', N'Kính Vạn Hoa (Tập 1)', 4, 2, 45000, 0, 180, 2015, '/images/books/9786042000024.jpg', 0);
+    (1, '9786041000011', N'Mắt Biếc', 5, 1, 110000, 120, 300, 2019, '~/Content/images/books/9786041000011.svg', 1),
+    (2, '9786041000028', N'Cho Tôi Xin Một Vé Đi Tuổi Thơ', 5, 1, 85000, 80, 220, 2018, '~/Content/images/books/9786041000028.svg', 1),
+    (3, '9786041000035', N'Tôi Thấy Hoa Vàng Trên Cỏ Xanh', 5, 1, 125000, 100, 378, 2018, '~/Content/images/books/9786041000035.svg', 1),
+    (4, '9786042000017', N'Dế Mèn Phiêu Lưu Ký', 4, 2, 60000, 150, 144, 2020, '~/Content/images/books/9786042000017.svg', 1),
+    (5, '9786043000016', N'Nhà Giả Kim', 5, 3, 79000, 200, 228, 2020, '~/Content/images/books/9786043000016.svg', 1),
+    (6, '9786044000015', N'Đắc Nhân Tâm', 7, 4, 86000, 180, 320, 2021, '~/Content/images/books/9786044000015.svg', 1),
+    (7, '9786043000023', N'Tuổi Trẻ Đáng Giá Bao Nhiêu', 7, 3, 90000, 90, 285, 2019, '~/Content/images/books/9786043000023.svg', 1),
+    (8, '9786045000014', N'Sapiens: Lược Sử Loài Người', 9, 5, 259000, 60, 556, 2021, '~/Content/images/books/9786045000014.svg', 1),
+    (9, '9786047000012', N'Clean Code (Bản tiếng Việt)', 10, 7, 320000, 40, 464, 2022, '~/Content/images/books/9786047000012.svg', 1),
+    (10, '9786046000013', N'The Pragmatic Programmer (Bản tiếng Việt)', 10, 6, 299000, 35, 352, 2023, '~/Content/images/books/9786046000013.svg', 1),
+    (11, '9786041000042', N'Cánh Đồng Bất Tận', 6, 1, 95000, 70, 216, 2019, '~/Content/images/books/9786041000042.svg', 1),
+    (12, '9786046000020', N'Homo Deus: Lược Sử Tương Lai', 9, 6, 279000, 50, 512, 2022, '~/Content/images/books/9786046000020.svg', 1),
+    (13, '9786044000022', N'Nghĩ Giàu Và Làm Giàu', 8, 4, 115000, 65, 400, 2020, '~/Content/images/books/9786044000022.svg', 1),
+    (14, '9786042000024', N'Kính Vạn Hoa (Tập 1)', 4, 2, 45000, 0, 180, 2015, '~/Content/images/books/9786042000024.svg', 0);
 SET IDENTITY_INSERT dbo.Books OFF;
 INSERT INTO dbo.BookAuthors (BookId, AuthorId, AuthorRole) VALUES
     (1, 1, N'Tác giả'),

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+<defs>
+  <filter id="paper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 0.07"/></feComponentTransfer></filter>
+  <linearGradient id="spine" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity="0.45"/><stop offset="0.035" stop-color="#000" stop-opacity="0.18"/><stop offset="0.05" stop-color="#fff" stop-opacity="0.22"/><stop offset="0.065" stop-color="#000" stop-opacity="0.06"/><stop offset="0.2" stop-color="#000" stop-opacity="0"/><stop offset="0.9" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.12"/></linearGradient>
+  <radialGradient id="light" cx="0.35" cy="0.25" r="0.9"><stop offset="0" stop-color="#fff" stop-opacity="0.16"/><stop offset="0.6" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.18"/></radialGradient>
+  <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e2a47"/><stop offset="1" stop-color="#06182b"/></linearGradient>
+</defs>
+<rect width="600" height="800" fill="url(#g)"/>
+<g transform="translate(300 330)"><circle r="120" fill="#ffd54a"/><circle r="120" fill="none" stroke="#fff3a3" stroke-width="8" opacity=".7"/><rect x="-42" y="112" width="84" height="46" rx="8" fill="#9aa1a8"/><rect x="-30" y="160" width="60" height="22" rx="6" fill="#6d747a"/>
+<path d="M-40 -20 q40 60 80 0 M0 -20 V60" fill="none" stroke="#b07d00" stroke-width="8" stroke-linecap="round"/></g>
+<g fill="#f6b800" stroke="#a87400" stroke-width="3"><circle cx="110" cy="590" r="30"/><circle cx="490" cy="596" r="30"/><circle cx="300" cy="610" r="30"/></g><text x="300" y="85.0" font-family="'Times New Roman', Times, serif" font-size="26" font-weight="700" fill="#ffd54a" text-anchor="middle" letter-spacing="8" >NAPOLEON HILL</text><text x="300" y="690.0" font-family="'Times New Roman', Times, serif" font-size="44" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="0" >NGHĨ GIÀU</text>
+<text x="300" y="742.8" font-family="'Times New Roman', Times, serif" font-size="44" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="0" >VÀ LÀM GIÀU</text>
+<rect width="600" height="800" filter="url(#paper)"/><rect width="600" height="800" fill="url(#light)"/><rect width="600" height="800" fill="url(#spine)"/>
+</svg>

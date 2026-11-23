@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+<defs>
+  <filter id="paper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 0.07"/></feComponentTransfer></filter>
+  <linearGradient id="spine" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity="0.45"/><stop offset="0.035" stop-color="#000" stop-opacity="0.18"/><stop offset="0.05" stop-color="#fff" stop-opacity="0.22"/><stop offset="0.065" stop-color="#000" stop-opacity="0.06"/><stop offset="0.2" stop-color="#000" stop-opacity="0"/><stop offset="0.9" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.12"/></linearGradient>
+  <radialGradient id="light" cx="0.35" cy="0.25" r="0.9"><stop offset="0" stop-color="#fff" stop-opacity="0.16"/><stop offset="0.6" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.18"/></radialGradient>
+  <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f5bc2"/><stop offset="1" stop-color="#1f1547"/></linearGradient>
+</defs>
+<rect width="600" height="800" fill="url(#g)"/>
+<path d="M0 640 Q150 600 300 630 T600 610 V800 H0Z" fill="#2b1d4a"/>
+<path d="M270 800 Q300 700 330 640 L360 640 Q330 720 340 800Z" fill="#4a3677" opacity=".8"/>
+<g transform="translate(300 330)"><path d="M-170 0 Q0 -120 170 0 Q0 120 -170 0Z" fill="#f6ecff"/><circle r="74" fill="#6a4cc4"/><circle r="44" fill="#1b1240"/><circle cx="-18" cy="-20" r="14" fill="#fff" opacity=".9"/>
+<path d="M-170 0 Q0 -120 170 0" fill="none" stroke="#1b1240" stroke-width="6"/></g><text x="300" y="85.0" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="24" font-weight="600" fill="#e8defa" text-anchor="middle" letter-spacing="6" >NGUYỄN NHẬT ÁNH</text><text x="300" y="690.0" font-family="'Times New Roman', Times, serif" font-size="78" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="6" >MẮT BIẾC</text>
+<rect width="600" height="800" filter="url(#paper)"/><rect width="600" height="800" fill="url(#light)"/><rect width="600" height="800" fill="url(#spine)"/>
+</svg>
