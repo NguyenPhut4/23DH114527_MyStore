@@ -18,7 +18,7 @@ else
         <div class="col-lg-8">
             <div class="panel p-0">
                 <div class="cart-head">
-                    <span>Sách trong giỏ (@Model.Lines.Count)</span>
+                    <label class="mb-0"><input type="checkbox" id="pickAll" class="form-check-input me-2" checked />Chọn tất cả (@Model.Lines.Count)</label>
                     @using (Html.BeginForm("ClearCart", "Cart", FormMethod.Post))
                     {
                         @Html.AntiForgeryToken()
@@ -34,7 +34,7 @@ else
                         {
                             var book = line.Book;
                             <div class="cart-row @(line.Available ? "" : "is-disabled")">
-                                <span></span>
+                                <input type="checkbox" class="form-check-input cart-pick" value="@book.BookId" data-qty="@line.Quantity" data-total="@line.LineTotal.ToString("0", System.Globalization.CultureInfo.InvariantCulture)" aria-label="Chọn @book.Title" @(line.Available ? "checked" : "disabled") />
                                 <a href="@Url.Action("ProductDetail", "Home", new { id = book.BookId })" class="cart-thumb">
                                     <img src="@Url.Content(book.ImageUrl)" alt="@book.Title" />
                                 </a>
@@ -82,23 +82,45 @@ else
         <div class="col-lg-4">
             <div class="panel summary-panel">
                 <h2 class="h5">Tính tiền</h2>
-                <div class="d-flex justify-content-between"><span>Số lượng</span><span>@Model.TotalQuantity</span></div>
+                <div class="d-flex justify-content-between"><span>Đã chọn</span><span><span id="selQty">@Model.TotalQuantity</span> cuốn</span></div>
                 <div class="d-flex justify-content-between mt-2 fs-5">
-                    <span>Tạm tính</span><strong class="text-danger">@Model.SubTotal.ToString("N0") đ</strong>
+                    <span>Tạm tính</span><strong class="text-danger"><span id="selTotal">@Model.SubTotal.ToString("N0")</span> đ</strong>
                 </div>
-                <p class="text-muted small mt-2 mb-0">Phí vận chuyển và mã giảm giá được tính ở bước thanh toán.</p>
-                @if (Model.AllAvailable)
+                <p class="text-muted small mt-2 mb-0">Tick các sách muốn mua; sách không chọn vẫn ở lại trong giỏ. Phí vận chuyển và mã giảm giá được tính ở bước thanh toán.</p>
+                @if (!Model.AllAvailable)
                 {
-                    @Html.ActionLink("Mua hàng (" + Model.TotalQuantity + ")", "Checkout", "Order", null, new { @class = "btn btn-buy btn-lg w-100 mt-3" })
+                    <div class="alert alert-warning small mt-3 mb-0">Sách không đủ hàng bị bỏ chọn. Hãy giảm số lượng hoặc xóa khỏi giỏ.</div>
                 }
-                else
-                {
-                    <div class="alert alert-warning small mt-3 mb-0">Có sách không đủ hàng. Hãy điều chỉnh hoặc xóa khỏi giỏ để tiếp tục.</div>
-                }
+                <a id="btnCheckout" href="@Url.Action("Checkout", "Order")" data-base="@Url.Action("Checkout", "Order")" class="btn btn-buy btn-lg w-100 mt-3">Mua hàng</a>
                 @Html.ActionLink("Tiếp tục mua hàng", "Index", "Home", null, new { @class = "btn btn-outline-buy w-100 mt-2" })
             </div>
         </div>
     </div>
 
     @Html.Partial("_PVSimilarBook", Model)
+}
+
+@section scripts {
+    <script>
+        (function () {
+            var picks = Array.prototype.slice.call(document.querySelectorAll('.cart-pick'));
+            var all = document.getElementById('pickAll'), btn = document.getElementById('btnCheckout');
+            function fmt(n) { return n.toLocaleString('vi-VN'); }
+            function sync() {
+                var qty = 0, total = 0, ids = [];
+                picks.forEach(function (p) {
+                    if (p.checked) { qty += +p.dataset.qty; total += +p.dataset.total; ids.push(p.value); }
+                });
+                document.getElementById('selQty').textContent = qty;
+                document.getElementById('selTotal').textContent = fmt(total);
+                btn.textContent = 'Mua hàng (' + qty + ')';
+                btn.href = btn.dataset.base + '?ids=' + ids.join(',');
+                btn.classList.toggle('disabled', ids.length === 0);
+                all.checked = ids.length > 0 && ids.length === picks.filter(function (p) { return !p.disabled; }).length;
+            }
+            picks.forEach(function (p) { p.addEventListener('change', sync); });
+            all.addEventListener('change', function () { picks.forEach(function (p) { if (!p.disabled) p.checked = all.checked; }); sync(); });
+            sync();
+        })();
+    </script>
 }

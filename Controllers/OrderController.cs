@@ -16,9 +16,10 @@ namespace NguyenTanPhu_23DH114527.Controllers
         private const int MaxPerStatus = 50;     // "Xem thêm": tối đa 50 đơn gần nhất
 
         // GET: Order/Checkout
-        public ActionResult Checkout()
+        public ActionResult Checkout(string ids)
         {
-            var lines = LoadCartLines();
+            var selected = ParseIds(ids);
+            var lines = LoadCartLines(selected);
             if (lines.Count == 0)
             {
                 TempData["Error"] = "Giỏ hàng đang trống.";
@@ -31,7 +32,8 @@ namespace NguyenTanPhu_23DH114527.Controllers
                 ReceiverPhone = user.PhoneNumber,
                 ShippingAddress = user.Address,   // mặc định lấy thông tin đã lưu trong tài khoản
                 DeliveryMethod = DeliveryOptions.Standard,
-                PaymentMethod = PayMethods.Cod
+                PaymentMethod = PayMethods.Cod,
+                SelectedIds = Join(selected)
             };
             Fill(vm, lines);
             return View(vm);
@@ -42,7 +44,8 @@ namespace NguyenTanPhu_23DH114527.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Checkout(CheckoutVM model, string submit)
         {
-            var lines = LoadCartLines();
+            var selected = ParseIds(model.SelectedIds);
+            var lines = LoadCartLines(selected);
             if (lines.Count == 0)
             {
                 return RedirectToAction("Index", "Cart");
@@ -91,7 +94,7 @@ namespace NguyenTanPhu_23DH114527.Controllers
             try
             {
                 var orderId = db.Database.SqlQuery<int>(
-                    "EXEC dbo.sp_PlaceOrder @UserId, @ReceiverName, @ReceiverPhone, @ShippingAddress, @PaymentMethod, @ShippingFee, @CouponCode, @DeliveryMethod",
+                    "EXEC dbo.sp_PlaceOrder @UserId, @ReceiverName, @ReceiverPhone, @ShippingAddress, @PaymentMethod, @ShippingFee, @CouponCode, @DeliveryMethod, @BookIds",
                     new SqlParameter("@UserId", CurrentUser.UserId),
                     new SqlParameter("@ReceiverName", model.ReceiverName.Trim()),
                     new SqlParameter("@ReceiverPhone", model.ReceiverPhone.Trim()),
@@ -99,7 +102,8 @@ namespace NguyenTanPhu_23DH114527.Controllers
                     new SqlParameter("@PaymentMethod", model.PaymentMethod),
                     new SqlParameter("@ShippingFee", fee),
                     new SqlParameter("@CouponCode", (object)code ?? DBNull.Value),
-                    new SqlParameter("@DeliveryMethod", model.DeliveryMethod)).First();
+                    new SqlParameter("@DeliveryMethod", model.DeliveryMethod),
+                    new SqlParameter("@BookIds", (object)Join(selected) ?? DBNull.Value)).First();
                 return RedirectToAction("OrderSuccess", new { id = orderId });
             }
             catch (Exception ex)
@@ -255,11 +259,30 @@ namespace NguyenTanPhu_23DH114527.Controllers
             return RedirectToAction("MyOrder");
         }
 
-        private List<CartLine> LoadCartLines()
+        // "1,3,5" -> {1,3,5}; rỗng hoặc sai định dạng -> null (nghĩa là cả giỏ)
+        private static HashSet<int> ParseIds(string ids)
+        {
+            if (string.IsNullOrWhiteSpace(ids)) return null;
+            var set = new HashSet<int>();
+            foreach (var part in ids.Split(','))
+            {
+                int id;
+                if (int.TryParse(part, out id)) set.Add(id);
+            }
+            return set.Count == 0 ? null : set;
+        }
+
+        private static string Join(HashSet<int> ids)
+        {
+            return ids == null ? null : string.Join(",", ids.OrderBy(x => x));
+        }
+
+        private List<CartLine> LoadCartLines(HashSet<int> selected = null)
         {
             var uid = CurrentUser.UserId;
-            return db.CartItems.Include(c => c.Book.Category).Where(c => c.UserId == uid).OrderBy(c => c.AddedAt).ToList()
-                     .Select(c => new CartLine { Book = c.Book, Quantity = c.Quantity }).ToList();
+            var items = db.CartItems.Include(c => c.Book.Category).Where(c => c.UserId == uid).OrderBy(c => c.AddedAt).ToList();
+            if (selected != null) items = items.Where(c => selected.Contains(c.BookId)).ToList();
+            return items.Select(c => new CartLine { Book = c.Book, Quantity = c.Quantity }).ToList();
         }
 
         private static void Fill(CheckoutVM vm, List<CartLine> lines)

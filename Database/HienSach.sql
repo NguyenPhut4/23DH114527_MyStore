@@ -370,7 +370,8 @@ CREATE PROCEDURE dbo.sp_PlaceOrder
     @PaymentMethod   varchar(20)   = 'COD',
     @ShippingFee     decimal(18,2) = 30000,
     @CouponCode      varchar(20)   = NULL,
-    @DeliveryMethod  varchar(20)   = 'STANDARD'
+    @DeliveryMethod  varchar(20)   = 'STANDARD',
+    @BookIds         nvarchar(max) = NULL      -- danh sách BookId được chọn, ví dụ '1,3,5'; NULL = cả giỏ
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -382,7 +383,8 @@ BEGIN
 
         SELECT @SubTotal = SUM(ci.Quantity * b.Price)
         FROM   dbo.CartItems ci JOIN dbo.Books b ON ci.BookId = b.BookId
-        WHERE  ci.UserId = @UserId;
+        WHERE  ci.UserId = @UserId
+  AND (@BookIds IS NULL OR ci.BookId IN (SELECT CAST(value AS int) FROM STRING_SPLIT(@BookIds, ',')));
 
         IF @SubTotal IS NULL
             THROW 50001, N'Giỏ hàng trống.', 1;
@@ -410,13 +412,16 @@ BEGIN
         INSERT INTO dbo.OrderItems (OrderId, BookId, Quantity, UnitPrice)
         SELECT @OrderId, ci.BookId, ci.Quantity, b.Price
         FROM   dbo.CartItems ci JOIN dbo.Books b ON ci.BookId = b.BookId
-        WHERE  ci.UserId = @UserId;
+        WHERE  ci.UserId = @UserId
+  AND (@BookIds IS NULL OR ci.BookId IN (SELECT CAST(value AS int) FROM STRING_SPLIT(@BookIds, ',')));
 
         IF @CouponId IS NOT NULL
             UPDATE dbo.Coupons SET UsedCount = UsedCount + 1
             WHERE  CouponId = @CouponId;
 
-        DELETE FROM dbo.CartItems WHERE UserId = @UserId;
+        DELETE FROM dbo.CartItems
+        WHERE  UserId = @UserId
+          AND  (@BookIds IS NULL OR BookId IN (SELECT CAST(value AS int) FROM STRING_SPLIT(@BookIds, ',')));
 
         COMMIT TRANSACTION;
         SELECT @OrderId AS OrderId;

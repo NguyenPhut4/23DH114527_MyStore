@@ -4,8 +4,8 @@
 Sinh viên: **Nguyễn Tấn Phú – 23DH114527**
 
 Website gồm 2 phần dùng chung một trang đăng nhập (`/Account/Login`), tự chuyển theo vai trò:
-- **Customer**: trang chủ (top 10 bán chạy, sách mới), danh mục 2 cấp, lọc theo giá và sắp xếp, chi tiết sách (tác giả, dịch giả, NXB, đánh giá), giỏ hàng lưu trong CSDL, thanh toán (COD / chuyển khoản / ví điện tử, giao thường / nhanh, mã giảm giá), **Đơn hàng của tôi** (mua lại, hủy đơn chờ thanh toán, in hóa đơn), đánh giá sách đã nhận, hồ sơ cá nhân.
-- **Admin / Staff** (`/Admin`): thống kê (doanh thu theo tháng và theo danh mục, top 5 tác giả), đơn hàng (tìm, sắp xếp, 15 đơn/trang, cập nhật trạng thái theo quy trình), sách (upload ảnh, tác giả/dịch giả), kho, danh mục, tác giả, NXB, đánh giá (duyệt/ẩn/xóa), khách hàng. Riêng **Admin**: coupon, quản lý tài khoản, khóa/mở khóa khách.
+- **Customer**: trang chủ (top 10 bán chạy, sách mới), danh mục 2 cấp, lọc theo giá và sắp xếp, chi tiết sách (tác giả, dịch giả, NXB, đánh giá), giỏ hàng lưu trong CSDL (tick chọn sách muốn mua, sách còn lại giữ trong giỏ), thanh toán (COD / chuyển khoản / ví điện tử, giao thường / nhanh, mã giảm giá), **Đơn hàng của tôi** (mua lại, hủy đơn chờ thanh toán, in hóa đơn), đánh giá sách đã nhận, hồ sơ cá nhân.
+- **Admin / Staff** (`/Admin`): thống kê (doanh thu theo tháng và theo danh mục, top 5 tác giả), đơn hàng (tìm, sắp xếp, 15 đơn/trang, cập nhật trạng thái theo quy trình, xuất CSV theo bộ lọc), sách (upload ảnh, tác giả/dịch giả), kho, danh mục, tác giả, NXB, đánh giá (duyệt/ẩn/xóa), khách hàng. Riêng **Admin**: coupon, quản lý tài khoản, khóa/mở khóa khách.
 
 ## Công nghệ
 - ASP.NET MVC 5, .NET Framework 4.7.2, Razor, Areas

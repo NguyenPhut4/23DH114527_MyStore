@@ -216,6 +216,7 @@ namespace NguyenTanPhu_23DH114527.Models.ViewModel
         public decimal Discount { get; set; }
         public decimal Total { get { return SubTotal + ShippingFee - Discount; } }
         public string CouponMessage { get; set; }
+        public string SelectedIds { get; set; }   // các BookId được chọn trong giỏ (vd "1,3"); rỗng = cả giỏ
     }
 
     // ===== Đơn hàng của tôi =====

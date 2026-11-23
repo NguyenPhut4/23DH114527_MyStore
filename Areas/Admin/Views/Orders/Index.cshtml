@@ -43,7 +43,9 @@
 }
 else
 {
-    <p class="text-muted">Có @Model.Orders.TotalItemCount đơn hàng. Bấm vào tiêu đề cột để sắp xếp.</p>
+    <p class="text-muted">Có @Model.Orders.TotalItemCount đơn hàng. Bấm vào tiêu đề cột để sắp xếp.
+        @Html.ActionLink("Xuất CSV", "Export", new { customerName = Model.CustomerName, paymentStatus = Model.PaymentStatus, orderDate = dateText }, new { @class = "btn btn-sm btn-outline-success ms-2" })
+    </p>
     @Html.Partial("PVOrderList", Model.Orders, new ViewDataDictionary { { "ShowCustomer", true }, { "SortLink", sortLink } })
 
     @Html.PagedListPager(Model.Orders, page => Url.Action("Index", new

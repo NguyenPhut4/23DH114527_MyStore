@@ -1,4 +1,6 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
+using System.Text;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -18,6 +20,25 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
         // Tìm theo Tên khách hàng, Trạng thái thanh toán, Ngày đặt hàng; 15 đơn/trang
         public ActionResult Index(OrderSearchVM model, int? page)
         {
+            var orders = Filter(model);
+
+            switch (model.SortOrder)
+            {
+                case "date_asc": orders = orders.OrderBy(o => o.OrderDate).ThenBy(o => o.OrderId); break;
+                case "name_asc": orders = orders.OrderBy(o => o.User.FullName).ThenByDescending(o => o.OrderDate); break;
+                case "name_desc": orders = orders.OrderByDescending(o => o.User.FullName).ThenByDescending(o => o.OrderDate); break;
+                case "total_asc": orders = orders.OrderBy(o => o.TotalAmount); break;
+                case "total_desc": orders = orders.OrderByDescending(o => o.TotalAmount); break;
+                default: orders = orders.OrderByDescending(o => o.OrderDate).ThenByDescending(o => o.OrderId); break;
+            }
+
+            ViewBag.PaymentStatusList = new SelectList(PayStatuses.All.Select(s => new { Value = s, Text = PayStatuses.Text(s) }), "Value", "Text", model.PaymentStatus);
+            model.Orders = orders.ToPagedList(BookQueries.Page(page), model.PageSize);
+            return View(model);
+        }
+
+        private IQueryable<Order> Filter(OrderSearchVM model)
+        {
             var orders = db.Orders.Include(o => o.User).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(model.CustomerName))
@@ -36,20 +57,24 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
                 var next = date.AddDays(1);
                 orders = orders.Where(o => o.OrderDate >= date && o.OrderDate < next);
             }
+            return orders;
+        }
 
-            switch (model.SortOrder)
+        // GET: Admin/Orders/Export  (xuất CSV theo đúng bộ lọc đang chọn, mở được bằng Excel)
+        public ActionResult Export(OrderSearchVM model)
+        {
+            var rows = Filter(model).OrderByDescending(o => o.OrderDate).ThenByDescending(o => o.OrderId).ToList();
+            Func<string, string> q = v => "\"" + (v ?? "").Replace("\"", "\"\"") + "\"";
+            var sb = new StringBuilder();
+            sb.AppendLine("Mã đơn,Ngày đặt,Khách hàng,Người nhận,SĐT,Tổng giá trị,Phí ship,Giảm giá,Thanh toán,Trạng thái thanh toán,Trạng thái đơn,Giao hàng");
+            foreach (var o in rows)
             {
-                case "date_asc": orders = orders.OrderBy(o => o.OrderDate).ThenBy(o => o.OrderId); break;
-                case "name_asc": orders = orders.OrderBy(o => o.User.FullName).ThenByDescending(o => o.OrderDate); break;
-                case "name_desc": orders = orders.OrderByDescending(o => o.User.FullName).ThenByDescending(o => o.OrderDate); break;
-                case "total_asc": orders = orders.OrderBy(o => o.TotalAmount); break;
-                case "total_desc": orders = orders.OrderByDescending(o => o.TotalAmount); break;
-                default: orders = orders.OrderByDescending(o => o.OrderDate).ThenByDescending(o => o.OrderId); break;
+                sb.AppendLine(string.Join(",", o.OrderId, o.OrderDate.ToString("dd/MM/yyyy HH:mm"), q(o.User.FullName), q(o.ReceiverName), q(o.ReceiverPhone),
+                    o.TotalAmount.ToString("0"), o.ShippingFee.ToString("0"), o.DiscountAmount.ToString("0"),
+                    q(o.PaymentMethodText), q(o.PaymentStatusText), q(o.StatusText), q(o.DeliveryText)));
             }
-
-            ViewBag.PaymentStatusList = new SelectList(PayStatuses.All.Select(s => new { Value = s, Text = PayStatuses.Text(s) }), "Value", "Text", model.PaymentStatus);
-            model.Orders = orders.ToPagedList(BookQueries.Page(page), model.PageSize);
-            return View(model);
+            var bytes = new UTF8Encoding(true).GetPreamble().Concat(Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+            return File(bytes, "text/csv", "don-hang-" + DateTime.Now.ToString("yyyyMMdd-HHmm") + ".csv");
         }
 
         // GET: Admin/Orders/DetailedOrder/5
