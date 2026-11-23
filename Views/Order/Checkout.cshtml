@@ -14,42 +14,55 @@
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="panel mb-3">
+                <h2 class="h5">Giao tới</h2>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.ReceiverName, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.ReceiverName, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.ReceiverName, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.ReceiverPhone, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.ReceiverPhone, new { @class = "form-control", type = "tel" })
+                        @Html.ValidationMessageFor(m => m.ReceiverPhone, "", new { @class = "text-danger small" })
+                    </div>
+                    <div class="col-12">
+                        @Html.LabelFor(m => m.ShippingAddress, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.ShippingAddress, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.ShippingAddress, "", new { @class = "text-danger small" })
+                        <div class="form-text">Mặc định lấy từ thông tin tài khoản, bạn có thể sửa cho đơn này.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel mb-3">
                 <h2 class="h5">Hình thức giao hàng</h2>
-                @foreach (var m in DeliveryMethods.All)
+                @foreach (var m in DeliveryOptions.All)
                 {
                     <div class="form-check option-card">
-                        <input class="form-check-input" type="radio" name="DeliveryMethod" id="dm_@m.GetHashCode()" value="@m" @(Model.DeliveryMethod == m ? "checked" : "") />
-                        <label class="form-check-label" for="dm_@m.GetHashCode()">
-                            @m <span class="text-muted small">@(m == DeliveryMethods.Fast ? "· Nhận hàng trong 1-2 ngày" : "· Nhận hàng trong 3-5 ngày")</span>
+                        <input class="form-check-input" type="radio" name="DeliveryMethod" id="dm_@m" value="@m" @(Model.DeliveryMethod == m ? "checked" : "") />
+                        <label class="form-check-label" for="dm_@m">
+                            @DeliveryOptions.Text(m)
+                            <span class="text-muted small">· @(m == DeliveryOptions.Express ? DeliveryOptions.ExpressFee.ToString("N0") + " đ" : "30.000 đ, miễn phí cho đơn từ 300.000 đ")</span>
                         </label>
                     </div>
                 }
                 @Html.ValidationMessageFor(m => m.DeliveryMethod, "", new { @class = "text-danger small" })
             </div>
 
-            <div class="panel mb-3">
+            <div class="panel">
                 <h2 class="h5">Hình thức thanh toán</h2>
-                @foreach (var m in PaymentMethods.All)
+                @foreach (var m in PayMethods.All)
                 {
                     <div class="form-check option-card">
-                        <input class="form-check-input" type="radio" name="PaymentMethod" id="pm_@m.GetHashCode()" value="@m" @(Model.PaymentMethod == m ? "checked" : "") />
-                        <label class="form-check-label" for="pm_@m.GetHashCode()">
-                            @m <span class="text-muted small">@(m == PaymentMethods.Cash ? "· Trả tiền khi nhận hàng (COD)" : "· Đơn sẽ chờ thanh toán đến khi nhận được chuyển khoản")</span>
+                        <input class="form-check-input" type="radio" name="PaymentMethod" id="pm_@m" value="@m" @(Model.PaymentMethod == m ? "checked" : "") />
+                        <label class="form-check-label" for="pm_@m">
+                            @PayMethods.Text(m)
+                            <span class="text-muted small">@(PayMethods.IsPrepaid(m) ? "· Đơn xử lý sau khi nhận được tiền" : "· Trả tiền khi nhận hàng")</span>
                         </label>
                     </div>
                 }
                 @Html.ValidationMessageFor(m => m.PaymentMethod, "", new { @class = "text-danger small" })
-            </div>
-
-            <div class="panel">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h2 class="h5 mb-0">Giao tới</h2>
-                    <button type="button" class="btn btn-link p-0" id="editAddressBtn" onclick="enableAddressEdit()">Chỉnh sửa</button>
-                </div>
-                <p class="mb-2 mt-2"><strong>@Model.CustomerName</strong> · @Model.CustomerPhone</p>
-                @Html.TextBoxFor(m => m.ShippingAddress, new { @class = "form-control", @readonly = "readonly", id = "ShippingAddress" })
-                <input type="text" id="newShippingAddress" class="form-control mt-2 d-none" placeholder="Nhập địa chỉ giao hàng mới" aria-label="Địa chỉ giao hàng mới" />
-                @Html.ValidationMessageFor(m => m.ShippingAddress, "", new { @class = "text-danger small" })
             </div>
         </div>
 
@@ -60,21 +73,33 @@
                     @Html.ActionLink("Thay đổi", "Index", "Cart")
                 </div>
                 <ul class="list-unstyled order-lines my-3">
-                    @foreach (var item in Model.Items)
+                    @foreach (var line in Model.Lines)
                     {
                         <li>
-                            <span>@item.Quantity × @item.ProductName</span>
-                            <span class="text-nowrap">@item.TotalPrice.ToString("N0") đ</span>
+                            <span>@line.Quantity × @line.Book.Title</span>
+                            <span class="text-nowrap">@line.LineTotal.ToString("N0") đ</span>
                         </li>
                     }
                 </ul>
-                <div class="d-flex justify-content-between">
-                    <span>Phí vận chuyển</span><span>Miễn phí</span>
+
+                <label class="form-label small mb-1" for="CouponCode">Mã giảm giá</label>
+                <div class="input-group">
+                    @Html.TextBoxFor(m => m.CouponCode, new { @class = "form-control text-uppercase", placeholder = "VD: WELCOME10" })
+                    <button type="submit" name="submit" value="apply" class="btn btn-outline-secondary">Áp dụng</button>
                 </div>
+                @Html.ValidationMessageFor(m => m.CouponCode, "", new { @class = "text-danger small" })
+                @if (!string.IsNullOrEmpty(Model.CouponMessage))
+                {
+                    <div class="small mt-1 @(Model.Discount > 0 ? "text-success" : "text-danger")">@Model.CouponMessage</div>
+                }
+
+                <div class="d-flex justify-content-between mt-3"><span>Tạm tính</span><span id="sumSub" data-value="@Model.SubTotal.ToString("0", System.Globalization.CultureInfo.InvariantCulture)">@Model.SubTotal.ToString("N0") đ</span></div>
+                <div class="d-flex justify-content-between"><span>Phí vận chuyển</span><span id="sumFee">@(Model.ShippingFee == 0 ? "Miễn phí" : Model.ShippingFee.ToString("N0") + " đ")</span></div>
+                <div class="d-flex justify-content-between"><span>Giảm giá</span><span id="sumDiscount" data-value="@Model.Discount.ToString("0", System.Globalization.CultureInfo.InvariantCulture)">@(Model.Discount > 0 ? "-" + Model.Discount.ToString("N0") + " đ" : "0 đ")</span></div>
                 <div class="d-flex justify-content-between mt-2 fs-5">
-                    <span>Tổng tiền</span><strong class="text-danger">@Model.TotalAmount.ToString("N0") đ</strong>
+                    <span>Tổng tiền</span><strong class="text-danger" id="sumTotal">@Model.Total.ToString("N0") đ</strong>
                 </div>
-                <button type="submit" class="btn btn-buy btn-lg w-100 mt-3">Đặt hàng</button>
+                <button type="submit" name="submit" value="order" class="btn btn-buy btn-lg w-100 mt-3">Đặt hàng</button>
             </div>
         </div>
     </div>
@@ -82,18 +107,19 @@
 
 @section scripts {
     <script>
-        function enableAddressEdit() {
-            var box = document.getElementById('newShippingAddress');
-            box.classList.remove('d-none');
-            box.value = document.getElementById('ShippingAddress').value;
-            box.focus();
-        }
-        // Khi bam Dat hang: neu co nhap dia chi moi thi gan vao ShippingAddress
-        document.getElementById('checkoutForm').addEventListener('submit', function updateShippingAddress() {
-            var box = document.getElementById('newShippingAddress');
-            if (!box.classList.contains('d-none') && box.value.trim() !== '') {
-                document.getElementById('ShippingAddress').value = box.value.trim();
+        // Cập nhật phí vận chuyển và tổng tiền ngay khi đổi hình thức giao hàng
+        (function () {
+            var sub = parseFloat(document.getElementById('sumSub').dataset.value);
+            var discount = parseFloat(document.getElementById('sumDiscount').dataset.value) || 0;
+            function fmt(n) { return n.toLocaleString('vi-VN') + ' đ'; }
+            function update() {
+                var sel = document.querySelector('input[name=DeliveryMethod]:checked');
+                var fee = sel && sel.value === 'EXPRESS' ? 45000 : (sub >= 300000 ? 0 : 30000);
+                document.getElementById('sumFee').textContent = fee === 0 ? 'Miễn phí' : fmt(fee);
+                document.getElementById('sumTotal').textContent = fmt(sub + fee - discount);
             }
-        });
+            document.querySelectorAll('input[name=DeliveryMethod]').forEach(function (r) { r.addEventListener('change', update); });
+            update();
+        })();
     </script>
 }

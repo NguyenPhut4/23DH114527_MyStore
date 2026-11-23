@@ -1,46 +1,52 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using PagedList;
 
 namespace NguyenTanPhu_23DH114527.Models.ViewModel
 {
-    // Trang Home
-    public class HomeProductVM
+    // ===== Trang chủ, danh mục, chi tiết sách =====
+    public class HomeBookVM
     {
         public string SearchTerm { get; set; }
-        public List<Product> FeaturedProducts { get; set; } = new List<Product>(); // top 10 ban chay
-        public IPagedList<Product> NewProducts { get; set; }                      // 20 san pham it nguoi mua, 6/trang
+        public List<Book> FeaturedBooks { get; set; } = new List<Book>();   // top 10 bán chạy
+        public IPagedList<Book> NewBooks { get; set; }                       // sách mới, 8 cuốn/trang
     }
 
-    // Danh sach san pham theo danh muc
-    public class ProductListVM
+    public class BookListVM
     {
         public Category Category { get; set; }
+        public List<Category> Children { get; set; } = new List<Category>();
         public string SearchTerm { get; set; }
         public string SortOrder { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
-        public IPagedList<Product> Products { get; set; }
+        public IPagedList<Book> Books { get; set; }
     }
 
-    // Chi tiet san pham
-    public class ProductDetailVM
+    public class BookDetailVM
     {
-        public Product Product { get; set; }
+        public Book Book { get; set; }
         public int Quantity { get; set; } = 1;
-        public List<Product> RelatedProducts { get; set; } = new List<Product>(); // 8 sp cung danh muc
-        public IPagedList<Product> TopProducts { get; set; }                    // ban chay cung danh muc, 3/trang
+        public double AvgRating { get; set; }
+        public int ReviewCount { get; set; }
+        public List<Review> Reviews { get; set; } = new List<Review>();
+        public bool CanReview { get; set; }          // đã mua và nhận sách này
+        public Review MyReview { get; set; }
+        public List<Book> RelatedBooks { get; set; } = new List<Book>();
+        public IPagedList<Book> TopBooks { get; set; }
     }
 
-    // Menu ca nhan tren header
     public class PersonalMenuVM
     {
         public bool IsLoggedIn { get; set; }
         public string Username { get; set; }
         public string DisplayName { get; set; }
+        public string Role { get; set; }
         public int CartCount { get; set; }
     }
 
+    // ===== Tài khoản =====
     public class RegisterVM
     {
         [Display(Name = "Tên đăng nhập")]
@@ -64,22 +70,40 @@ namespace NguyenTanPhu_23DH114527.Models.ViewModel
         [Display(Name = "Họ và tên")]
         [Required(ErrorMessage = "Vui lòng nhập họ tên")]
         [StringLength(100, ErrorMessage = "Họ tên tối đa 100 ký tự")]
-        public string CustomerName { get; set; }
-
-        [Display(Name = "Số điện thoại")]
-        [Required(ErrorMessage = "Vui lòng nhập số điện thoại")]
-        [RegularExpression(@"^0\d{9,10}$", ErrorMessage = "Số điện thoại gồm 10-11 chữ số, bắt đầu bằng 0")]
-        public string CustomerPhone { get; set; }
+        public string FullName { get; set; }
 
         [Display(Name = "Email")]
         [Required(ErrorMessage = "Vui lòng nhập email")]
         [EmailAddress(ErrorMessage = "Email không hợp lệ")]
-        public string CustomerEmail { get; set; }
+        [StringLength(100, ErrorMessage = "Email tối đa 100 ký tự")]
+        public string Email { get; set; }
+
+        [Display(Name = "Số điện thoại")]
+        [Required(ErrorMessage = "Vui lòng nhập số điện thoại")]
+        [RegularExpression(@"^0\d{9,10}$", ErrorMessage = "Số điện thoại gồm 10-11 chữ số, bắt đầu bằng 0")]
+        public string PhoneNumber { get; set; }
 
         [Display(Name = "Địa chỉ")]
         [Required(ErrorMessage = "Vui lòng nhập địa chỉ")]
-        [StringLength(250)]
-        public string CustomerAddress { get; set; }
+        [StringLength(255, ErrorMessage = "Địa chỉ tối đa 255 ký tự")]
+        public string Address { get; set; }
+    }
+
+    public class LoginVM
+    {
+        [Display(Name = "Tên đăng nhập")]
+        [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập")]
+        public string Username { get; set; }
+
+        [Display(Name = "Mật khẩu")]
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
+        [DataType(DataType.Password)]
+        public string Password { get; set; }
+
+        [Display(Name = "Ghi nhớ đăng nhập")]
+        public bool RememberMe { get; set; }
+
+        public string ReturnUrl { get; set; }
     }
 
     public class UpdateProfileVM
@@ -89,22 +113,23 @@ namespace NguyenTanPhu_23DH114527.Models.ViewModel
         [Display(Name = "Họ và tên")]
         [Required(ErrorMessage = "Vui lòng nhập họ tên")]
         [StringLength(100)]
-        public string CustomerName { get; set; }
+        public string FullName { get; set; }
 
         [Display(Name = "Số điện thoại")]
         [Required(ErrorMessage = "Vui lòng nhập số điện thoại")]
         [RegularExpression(@"^0\d{9,10}$", ErrorMessage = "Số điện thoại gồm 10-11 chữ số, bắt đầu bằng 0")]
-        public string CustomerPhone { get; set; }
+        public string PhoneNumber { get; set; }
 
         [Display(Name = "Email")]
         [Required(ErrorMessage = "Vui lòng nhập email")]
         [EmailAddress(ErrorMessage = "Email không hợp lệ")]
-        public string CustomerEmail { get; set; }
+        [StringLength(100)]
+        public string Email { get; set; }
 
         [Display(Name = "Địa chỉ")]
         [Required(ErrorMessage = "Vui lòng nhập địa chỉ")]
-        [StringLength(250)]
-        public string CustomerAddress { get; set; }
+        [StringLength(255)]
+        public string Address { get; set; }
     }
 
     public class ChangePasswordVM
@@ -133,15 +158,44 @@ namespace NguyenTanPhu_23DH114527.Models.ViewModel
         public ChangePasswordVM ChangePassword { get; set; } = new ChangePasswordVM();
     }
 
-    // Trang thanh toan
+    // ===== Giỏ hàng (lưu trong bảng CartItems) =====
+    public class CartLine
+    {
+        public Book Book { get; set; }
+        public int Quantity { get; set; }
+        public decimal LineTotal { get { return Book.Price * Quantity; } }
+        public bool Available { get { return Book.IsActive && Book.StockQuantity >= Quantity; } }
+    }
+
+    public class CartVM
+    {
+        public List<CartLine> Lines { get; set; } = new List<CartLine>();
+        public IPagedList<Book> SimilarBooks { get; set; }
+
+        public bool IsEmpty { get { return Lines.Count == 0; } }
+        public int TotalQuantity { get { return Lines.Sum(l => l.Quantity); } }
+        public decimal SubTotal { get { return Lines.Sum(l => l.LineTotal); } }
+        public bool AllAvailable { get { return Lines.All(l => l.Available); } }
+        // Nhóm theo danh mục sách
+        public List<IGrouping<string, CartLine>> Grouped { get { return Lines.GroupBy(l => l.Book.Category.CategoryName).ToList(); } }
+    }
+
+    // ===== Thanh toán =====
     public class CheckoutVM
     {
-        public string CustomerName { get; set; }
-        public string CustomerPhone { get; set; }
+        [Display(Name = "Người nhận")]
+        [Required(ErrorMessage = "Vui lòng nhập tên người nhận")]
+        [StringLength(100, ErrorMessage = "Tên người nhận tối đa 100 ký tự")]
+        public string ReceiverName { get; set; }
+
+        [Display(Name = "Số điện thoại")]
+        [Required(ErrorMessage = "Vui lòng nhập số điện thoại")]
+        [RegularExpression(@"^0\d{9,10}$", ErrorMessage = "Số điện thoại gồm 10-11 chữ số, bắt đầu bằng 0")]
+        public string ReceiverPhone { get; set; }
 
         [Display(Name = "Địa chỉ giao hàng")]
         [Required(ErrorMessage = "Vui lòng nhập địa chỉ giao hàng")]
-        [StringLength(250, ErrorMessage = "Địa chỉ tối đa 250 ký tự")]
+        [StringLength(255, ErrorMessage = "Địa chỉ tối đa 255 ký tự")]
         public string ShippingAddress { get; set; }
 
         [Display(Name = "Hình thức giao hàng")]
@@ -152,16 +206,24 @@ namespace NguyenTanPhu_23DH114527.Models.ViewModel
         [Required(ErrorMessage = "Vui lòng chọn hình thức thanh toán")]
         public string PaymentMethod { get; set; }
 
-        public List<CartItem> Items { get; set; } = new List<CartItem>();
-        public decimal TotalAmount { get; set; }
+        [Display(Name = "Mã giảm giá")]
+        [StringLength(20, ErrorMessage = "Mã giảm giá tối đa 20 ký tự")]
+        public string CouponCode { get; set; }
+
+        public List<CartLine> Lines { get; set; } = new List<CartLine>();
+        public decimal SubTotal { get; set; }
+        public decimal ShippingFee { get; set; }
+        public decimal Discount { get; set; }
+        public decimal Total { get { return SubTotal + ShippingFee - Discount; } }
+        public string CouponMessage { get; set; }
     }
 
-    // Trang Don hang cua toi
+    // ===== Đơn hàng của tôi =====
     public class MyOrderVM
     {
         public string SearchTerm { get; set; }
-        public string Status { get; set; }   // null = Tat ca don
-        public string Expand { get; set; }   // trang thai dang "Xem them"
+        public string Status { get; set; }   // null = Tất cả đơn
+        public string Expand { get; set; }   // trạng thái đang bấm "Xem thêm"
         public bool HasAnyOrder { get; set; }
         public Dictionary<string, int> StatusCounts { get; set; } = new Dictionary<string, int>();
         public List<OrderGroup> Groups { get; set; } = new List<OrderGroup>();

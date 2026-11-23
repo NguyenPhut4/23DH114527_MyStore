@@ -1,26 +1,23 @@
-﻿@model NguyenTanPhu_23DH114527.Models.Customer
-@{
-    ViewBag.Title = "Chi tiết khách hàng";
-}
-
-<h2 class="page-title">Thông tin khách hàng</h2>
-
-<dl class="row">
-    <dt class="col-sm-2">@Html.DisplayNameFor(m => m.CustomerID)</dt>
-    <dd class="col-sm-10">@Model.CustomerID</dd>
-    <dt class="col-sm-2">@Html.DisplayNameFor(m => m.CustomerName)</dt>
-    <dd class="col-sm-10">@Model.CustomerName</dd>
-    <dt class="col-sm-2">@Html.DisplayNameFor(m => m.CustomerPhone)</dt>
-    <dd class="col-sm-10">@Model.CustomerPhone</dd>
-    <dt class="col-sm-2">@Html.DisplayNameFor(m => m.CustomerEmail)</dt>
-    <dd class="col-sm-10">@Model.CustomerEmail</dd>
-    <dt class="col-sm-2">@Html.DisplayNameFor(m => m.CustomerAddress)</dt>
-    <dd class="col-sm-10">@Model.CustomerAddress</dd>
-    <dt class="col-sm-2">@Html.DisplayNameFor(m => m.Username)</dt>
-    <dd class="col-sm-10">@Model.Username</dd>
+﻿@model NguyenTanPhu_23DH114527.Models.User
+@{ ViewBag.Title = "Chi tiết khách hàng"; }
+<h2 class="page-title">Chi tiết khách hàng</h2>
+<dl class="row" style="max-width:700px">
+    <dt class="col-sm-4">Họ tên</dt><dd class="col-sm-8">@Model.FullName</dd>
+    <dt class="col-sm-4">Tài khoản</dt><dd class="col-sm-8">@Model.Username</dd>
+    <dt class="col-sm-4">Email</dt><dd class="col-sm-8">@Model.Email</dd>
+    <dt class="col-sm-4">Số điện thoại</dt><dd class="col-sm-8">@Model.PhoneNumber</dd>
+    <dt class="col-sm-4">Địa chỉ</dt><dd class="col-sm-8">@Model.Address</dd>
+    <dt class="col-sm-4">Ngày đăng ký</dt><dd class="col-sm-8">@Model.CreatedAt.ToString("dd/MM/yyyy")</dd>
+    <dt class="col-sm-4">Trạng thái</dt><dd class="col-sm-8">@(Model.IsActive ? "Hoạt động" : "Đã khóa")</dd>
 </dl>
-
-<h2 class="page-title">Danh sách đơn hàng (@Model.Orders.Count)</h2>
-@Html.Partial("~/Areas/Admin/Views/Orders/PVOrderList.cshtml", Model.Orders.OrderByDescending(o => o.OrderDate).ThenByDescending(o => o.OrderID).ToList())
-
-@Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary" })
+@if (User.IsInRole("Admin"))
+{
+    using (Html.BeginForm("ToggleActive", "Customers", new { id = Model.UserId }, FormMethod.Post, new { @class = "mb-3" }))
+    {
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn @(Model.IsActive ? "btn-outline-danger" : "btn-outline-success")">@(Model.IsActive ? "Khóa tài khoản" : "Mở khóa")</button>
+    }
+}
+<h4>Đơn hàng của khách (@Model.Orders.Count)</h4>
+@Html.Partial("~/Areas/Admin/Views/Orders/PVOrderList.cshtml", Model.Orders.OrderByDescending(o => o.OrderDate).ToList())
+@Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary mt-3" })

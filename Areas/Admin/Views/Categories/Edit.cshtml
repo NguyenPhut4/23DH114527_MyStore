@@ -1,19 +1,9 @@
 ﻿@model NguyenTanPhu_23DH114527.Models.Category
-@{
-    ViewBag.Title = "Sửa danh mục";
-}
-
+@{ ViewBag.Title = "Sửa danh mục"; }
 <h2 class="page-title">Sửa danh mục</h2>
-
-@using (Html.BeginForm("Edit", "Categories", FormMethod.Post))
+@using (Html.BeginForm("Edit", "Categories"))
 {
     @Html.Partial("PVCreateEditCategory", Model)
-    <div class="offset-md-2">
-        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-        @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary" })
-    </div>
-}
-
-@section scripts {
-    @Scripts.Render("~/bundles/jqueryval")
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
 }

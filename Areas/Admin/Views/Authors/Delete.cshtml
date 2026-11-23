@@ -1,0 +1,11 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Author
+@{ ViewBag.Title = "Xóa tác giả"; int books = ViewBag.BookCount; }
+<h2 class="page-title">Xóa tác giả / dịch giả</h2>
+@if (books > 0) { <div class="alert alert-warning" style="max-width:640px">"@Model.AuthorName" gắn với @books cuốn sách nên <strong>không thể xóa</strong>.</div> }
+else { <div class="alert alert-danger" style="max-width:640px">Xóa "@Model.AuthorName"?</div> }
+@using (Html.BeginForm("Delete", "Authors", new { id = Model.AuthorId }, FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    if (books == 0) { <button type="submit" class="btn btn-danger">Xóa</button> }
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
+}

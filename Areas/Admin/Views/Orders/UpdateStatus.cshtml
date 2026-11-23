@@ -3,26 +3,26 @@
 @{
     ViewBag.Title = "Cập nhật trạng thái đơn hàng";
     var next = (IList<string>)ViewBag.NextStatuses;
-    var transfer = OrderWorkflow.IsBankTransfer(Model);
-    var needPayment = Model.OrderStatus == OrderStatuses.Pending;
+    var prepaid = PayMethods.IsPrepaid(Model.PaymentMethod);
+    var needPayment = prepaid && Model.Status == OrderStatuses.Pending;
 }
 
-<h2 class="page-title">Cập nhật trạng thái đơn hàng #@Model.OrderID</h2>
+<h2 class="page-title">Cập nhật trạng thái đơn hàng #@Model.OrderId</h2>
 
 <div class="row g-3 mb-3" style="max-width: 900px">
     <div class="col-md-6">
         <div class="invoice-box h-100">
             <div class="invoice-box-title">Đơn hàng</div>
-            <div>Khách hàng: <strong>@Model.Customer.CustomerName</strong></div>
+            <div>Khách hàng: <strong>@(Model.User != null ? Model.User.FullName : Model.ReceiverName)</strong></div>
             <div>Ngày đặt: @Model.OrderDate.ToString("dd/MM/yyyy") · Tổng: <strong>@Model.TotalAmount.ToString("N0") đ</strong></div>
-            <div>Hình thức thanh toán: <strong>@(Model.PaymentMethod ?? PaymentMethods.Cash)</strong></div>
+            <div>Thanh toán: <strong>@Model.PaymentMethodText</strong></div>
         </div>
     </div>
     <div class="col-md-6">
         <div class="invoice-box h-100">
             <div class="invoice-box-title">Hiện tại</div>
-            <div>Trạng thái đơn: <span class="invoice-status">@Model.OrderStatus</span></div>
-            <div>Trạng thái thanh toán: <strong>@Model.PaymentStatus</strong></div>
+            <div>Trạng thái đơn: <span class="invoice-status">@Model.StatusText</span></div>
+            <div>Trạng thái thanh toán: <strong>@Model.PaymentStatusText</strong></div>
             @if (OrderWorkflow.RefundNote(Model) != null)
             {
                 <div class="text-danger small mt-1">@OrderWorkflow.RefundNote(Model)</div>
@@ -36,12 +36,13 @@
 @if (!next.Any())
 {
     <div class="alert alert-secondary" style="max-width: 900px">
-        Đơn hàng đã ở trạng thái cuối <strong>"@Model.OrderStatus"</strong>, không thể thay đổi nữa.
+        Đơn hàng đã ở trạng thái cuối <strong>"@Model.StatusText"</strong>, không thể thay đổi nữa.
     </div>
+    @Html.ActionLink("Quay lại chi tiết", "DetailedOrder", new { id = Model.OrderId }, new { @class = "btn btn-secondary" })
 }
 else
 {
-    using (Html.BeginForm("UpdateStatus", "Orders", new { id = Model.OrderID }, FormMethod.Post))
+    using (Html.BeginForm("UpdateStatus", "Orders", new { id = Model.OrderId }, FormMethod.Post))
     {
         @Html.AntiForgeryToken()
         <div style="max-width: 640px">
@@ -49,7 +50,7 @@ else
             <select id="orderStatus" name="orderStatus" class="form-select">
                 @foreach (var s in next)
                 {
-                    <option value="@s">@s</option>
+                    <option value="@s">@OrderStatuses.Text(s)</option>
                 }
             </select>
 
@@ -58,7 +59,7 @@ else
                 <div class="form-check mt-3" id="paymentBox">
                     <input class="form-check-input" type="checkbox" id="paymentReceived" name="paymentReceived" value="true" />
                     <label class="form-check-label" for="paymentReceived">
-                        Đã nhận được tiền chuyển khoản (bắt buộc để chuyển sang "Đang xử lý")
+                        Đã nhận được tiền (bắt buộc để chuyển sang "Đang xử lý")
                     </label>
                 </div>
             }
@@ -66,36 +67,30 @@ else
 
         <ul class="text-muted small mt-3" style="max-width: 640px">
             <li>Trạng thái thanh toán được hệ thống <strong>tự cập nhật</strong>, không chọn tay.</li>
-            @if (transfer)
+            @if (prepaid)
             {
-                <li>Chuyển khoản: phải xác nhận đã nhận tiền thì mới xử lý, vận chuyển và giao hàng.</li>
+                <li>Thanh toán trước (chuyển khoản / ví): phải xác nhận đã nhận tiền thì mới xử lý, vận chuyển và giao hàng.</li>
             }
             else
             {
                 <li>Tiền mặt (COD): chuyển sang "Đã giao" thì đơn tự thành "Đã thanh toán".</li>
             }
-            <li>"Đã hủy" sẽ trả số lượng sản phẩm về kho. "Đã giao" và "Đã hủy" là trạng thái cuối, không đổi được nữa.</li>
+            <li>"Đã hủy" sẽ trả số lượng sách về kho và hoàn lượt dùng coupon. "Đã giao" và "Đã hủy" là trạng thái cuối, không đổi được nữa.</li>
         </ul>
 
         <div class="mt-3">
             <button type="submit" class="btn btn-primary">Lưu</button>
-            @Html.ActionLink("Quay lại chi tiết", "DetailedOrder", new { id = Model.OrderID }, new { @class = "btn btn-secondary" })
+            @Html.ActionLink("Quay lại chi tiết", "DetailedOrder", new { id = Model.OrderId }, new { @class = "btn btn-secondary" })
         </div>
     }
 }
 
-@if (!next.Any())
-{
-    @Html.ActionLink("Quay lại chi tiết", "DetailedOrder", new { id = Model.OrderID }, new { @class = "btn btn-secondary" })
-}
-
 @section scripts {
     <script>
-        // Chi hien o "Da nhan tien" khi chon "Dang xu ly"
         (function () {
             var sel = document.getElementById('orderStatus'), box = document.getElementById('paymentBox');
             if (!sel || !box) return;
-            function sync() { box.style.display = sel.value === 'Đang xử lý' ? '' : 'none'; }
+            function sync() { box.style.display = sel.value === 'Confirmed' ? '' : 'none'; }
             sel.addEventListener('change', sync); sync();
         })();
     </script>

@@ -1,4 +1,5 @@
 ﻿@model NguyenTanPhu_23DH114527.Models.Order
+@using NguyenTanPhu_23DH114527.Models
 @{
     ViewBag.Title = "Đặt hàng thành công";
 }
@@ -7,10 +8,11 @@
     <div class="success-icon" aria-hidden="true">✓</div>
     <div>
         <h1 class="h4 mb-1">Đặt hàng thành công!</h1>
-        <p class="mb-0">Cảm ơn bạn. Mã đơn hàng của bạn là <strong>#@Model.OrderID</strong>.
-            @if (Model.PaymentMethod == NguyenTanPhu_23DH114527.Models.PaymentMethods.BankTransfer)
+        <p class="mb-0">
+            Cảm ơn bạn. Mã đơn hàng của bạn là <strong>#@Model.OrderId</strong>.
+            @if (PayMethods.IsPrepaid(Model.PaymentMethod))
             {
-                <span>Vui lòng chuyển khoản với nội dung <strong>DH@(Model.OrderID)</strong> để chúng tôi xử lý đơn.</span>
+                <span>Vui lòng thanh toán với nội dung <strong>HS@(Model.OrderId)</strong> để chúng tôi xử lý đơn.</span>
             }
         </p>
     </div>

@@ -1,0 +1,29 @@
+﻿@model PagedList.IPagedList<NguyenTanPhu_23DH114527.Models.Author>
+@using PagedList.Mvc
+@{ ViewBag.Title = "Tác giả"; string q = ViewBag.Q; }
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <h2 class="page-title mb-0">Tác giả / Dịch giả</h2>
+    @Html.ActionLink("Thêm mới", "Create", null, new { @class = "btn btn-primary" })
+</div>
+@using (Html.BeginForm("Index", "Authors", FormMethod.Get, new { @class = "row g-2 my-2" }))
+{
+    <div class="col-md-4"><input name="q" value="@q" class="form-control" placeholder="Tên hoặc quốc tịch" /></div>
+    <div class="col-auto"><button class="btn btn-primary">Tìm kiếm</button> @Html.ActionLink("Xóa lọc", "Index", null, new { @class = "btn btn-outline-secondary" })</div>
+}
+@if (Model.TotalItemCount == 0) { <p class="empty-result">KHÔNG CÓ</p> }
+else
+{
+    <div class="table-responsive">
+        <table class="table table-admin">
+            <thead><tr><th>Tên</th><th>Năm sinh</th><th>Quốc tịch</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var a in Model)
+                {
+                    <tr><td>@a.AuthorName</td><td>@a.BirthYear</td><td>@a.Nationality</td>
+                        <td class="text-nowrap">@Html.ActionLink("Sửa", "Edit", new { id = a.AuthorId }) | @Html.ActionLink("Xóa", "Delete", new { id = a.AuthorId })</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, q }))
+}

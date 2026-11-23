@@ -1,4 +1,6 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 using NguyenTanPhu_23DH114527.Models;
@@ -7,142 +9,137 @@ using PagedList;
 
 namespace NguyenTanPhu_23DH114527.Controllers
 {
-    public class CartController : Controller
+    // Giỏ hàng lưu trong bảng CartItems (quan hệ nhiều-nhiều Users - Books), nên đăng nhập ở thiết bị khác vẫn thấy giỏ
+    public class CartController : BaseController
     {
-        private MyStoreEntities db = new MyStoreEntities();
+        private const int MaxPerAdd = 99;
 
-        private CartService GetCartService()
-        {
-            return new CartService(Session);
-        }
-
-        // GET: Cart  (gio hang nang cao: nhom theo danh muc + san pham tuong tu)
+        // GET: Cart
+        [Authorize]
         public ActionResult Index(int? page)
         {
-            var cart = GetCartService().GetCart();
+            var uid = CurrentUser.UserId;
+            var items = db.CartItems.Include(c => c.Book.Category).Include(c => c.Book.BookAuthors.Select(a => a.Author))
+                                    .Where(c => c.UserId == uid).OrderBy(c => c.AddedAt).ToList();
+            var vm = new CartVM { Lines = items.Select(c => new CartLine { Book = c.Book, Quantity = c.Quantity }).ToList() };
 
-            // Cap nhat lai ton kho / gia moi nhat cho tung mat hang
-            var ids = cart.Items.Select(i => i.ProductID).ToList();
-            var products = db.Products.Include(p => p.Category).Where(p => ids.Contains(p.ProductID)).ToList();
-            foreach (var item in cart.Items.ToList())
-            {
-                var p = products.FirstOrDefault(x => x.ProductID == item.ProductID);
-                if (p == null)
-                {
-                    cart.RemoveItem(item.ProductID);
-                    continue;
-                }
-                item.MaxQuantity = p.Quantity;
-                item.UnitPrice = p.ProductPrice;
-                if (p.Quantity <= 0)
-                {
-                    item.Selected = false;
-                }
-                else if (item.Quantity > p.Quantity)
-                {
-                    item.Quantity = p.Quantity;
-                }
-            }
-
-            var categoryIds = products.Select(p => p.CategoryID).Distinct().ToList();
-            cart.SimilarProducts = db.Products
-                .Where(p => categoryIds.Contains(p.CategoryID) && !ids.Contains(p.ProductID) && p.Quantity > 0)
-                .OrderByDescending(p => p.SoldQuantity)
-                .ToPagedList(page ?? 1, 4);
-
-            return View(cart);
+            // Sách cùng danh mục với các sách trong giỏ
+            var inCart = items.Select(c => c.BookId).ToList();
+            var categoryIds = items.Select(c => c.Book.CategoryId).Distinct().ToList();
+            var similar = BookQueries.Available(db).Where(b => categoryIds.Contains(b.CategoryId) && !inCart.Contains(b.BookId))
+                                     .WithAuthors().OrderByBestSelling().ToList();
+            BookQueries.FillSold(db, similar);
+            vm.SimilarBooks = similar.ToPagedList(BookQueries.Page(page), 4);
+            return View(vm);
         }
 
         // POST: Cart/AddToCart
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult AddToCart(int productId, int quantity = 1, bool buyNow = false, string returnUrl = null)
+        public ActionResult AddToCart(int bookId, int quantity = 1, bool buyNow = false, string returnUrl = null)
         {
-            var product = db.Products.Include(p => p.Category).FirstOrDefault(p => p.ProductID == productId);
-            if (product == null)
+            if (CurrentUser == null)
+            {
+                TempData["Error"] = "Vui lòng đăng nhập để thêm sách vào giỏ hàng.";
+                var back = !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Action("ProductDetail", "Home", new { id = bookId });
+                return RedirectToAction("Login", "Account", new { returnUrl = back });
+            }
+
+            var book = db.Books.Find(bookId);
+            if (book == null)
             {
                 return HttpNotFound();
             }
-            if (product.Quantity <= 0)
+            if (!book.IsActive || book.StockQuantity <= 0)
             {
-                TempData["Error"] = "Sản phẩm \"" + product.ProductName + "\" đã hết hàng.";
+                TempData["Error"] = "Sách \"" + book.Title + "\" hiện không còn hàng.";
                 return RedirectBack(returnUrl);
             }
 
-            var cart = GetCartService().GetCart();
-            var before = cart.Items.Where(i => i.ProductID == productId).Select(i => i.Quantity).FirstOrDefault();
-            var after = cart.AddItem(product, quantity);
-
-            if (before + quantity > after)
+            var uid = CurrentUser.UserId;
+            var item = db.CartItems.FirstOrDefault(c => c.UserId == uid && c.BookId == bookId);
+            // Tính bằng kiểu long để không bị tràn số khi nhập số lượng rất lớn
+            var wanted = (long)(item != null ? item.Quantity : 0) + Math.Max(1, Math.Min(quantity, MaxPerAdd));
+            var finalQty = (int)Math.Min(wanted, book.StockQuantity);
+            if (item == null)
             {
-                TempData["Error"] = "Chỉ còn " + product.Quantity + " sản phẩm \"" + product.ProductName + "\" trong kho. Giỏ hàng đã được cập nhật tối đa.";
+                db.CartItems.Add(new CartItem { UserId = uid, BookId = bookId, Quantity = finalQty, AddedAt = DateTime.Now });
             }
             else
             {
-                TempData["Success"] = "Đã thêm " + quantity + " \"" + product.ProductName + "\" vào giỏ hàng.";
+                item.Quantity = finalQty;
             }
 
-            // Sau khi them vao gio -> chuyen toi trang gio hang
+            var error = DbErrors.Save(db);
+            if (error != null)
+            {
+                TempData["Error"] = error;
+                return RedirectBack(returnUrl);
+            }
+
+            if (wanted > book.StockQuantity)
+            {
+                TempData["Error"] = "Chỉ còn " + book.StockQuantity + " cuốn \"" + book.Title + "\" trong kho. Giỏ hàng đã được cập nhật tối đa.";
+            }
+            else
+            {
+                TempData["Success"] = "Đã thêm \"" + book.Title + "\" vào giỏ hàng.";
+            }
+            // Sau khi thêm vào giỏ: chuyển tới trang giỏ hàng
             return buyNow || string.IsNullOrEmpty(returnUrl) ? RedirectToAction("Index") : RedirectBack(returnUrl);
         }
 
-        // POST: Cart/RemoveFromCart
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult RemoveFromCart(int productId)
-        {
-            GetCartService().GetCart().RemoveItem(productId);
-            return RedirectToAction("Index");
-        }
-
         // POST: Cart/UpdateQuantity
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult UpdateQuantity(int productId, int quantity, int? setQuantity)
+        public ActionResult UpdateQuantity(int bookId, int quantity, int? setQuantity)
         {
-            // Nut +/- gui setQuantity; o nhap so gui quantity
             if (setQuantity.HasValue)
             {
-                quantity = setQuantity.Value;
+                quantity = setQuantity.Value;   // nút +/- gửi setQuantity, ô nhập số gửi quantity
             }
-            var cart = GetCartService().GetCart();
-            var item = cart.Items.FirstOrDefault(i => i.ProductID == productId);
+            var uid = CurrentUser.UserId;
+            var item = db.CartItems.Include(c => c.Book).FirstOrDefault(c => c.UserId == uid && c.BookId == bookId);
             if (item != null)
             {
-                var stock = db.Products.Where(p => p.ProductID == productId).Select(p => p.Quantity).FirstOrDefault();
-                item.MaxQuantity = stock;
+                var stock = item.Book.StockQuantity;
+                var qty = Math.Max(1, Math.Min(quantity, Math.Max(1, stock)));
                 if (quantity > stock)
                 {
-                    TempData["Error"] = "Chỉ còn " + stock + " sản phẩm \"" + item.ProductName + "\" trong kho.";
+                    TempData["Error"] = "Chỉ còn " + stock + " cuốn \"" + item.Book.Title + "\" trong kho.";
                 }
-                cart.UpdateQuantity(productId, quantity < 1 ? 1 : quantity);
+                item.Quantity = qty;
+                DbErrors.Save(db);
             }
             return RedirectToAction("Index");
         }
 
-        // POST: Cart/ToggleSelect  (tickbox chon mua)
+        // POST: Cart/RemoveFromCart
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ToggleSelect(int? productId, bool selected = false)
+        public ActionResult RemoveFromCart(int bookId)
         {
-            var cart = GetCartService().GetCart();
-            if (productId.HasValue)
+            var uid = CurrentUser.UserId;
+            var item = db.CartItems.FirstOrDefault(c => c.UserId == uid && c.BookId == bookId);
+            if (item != null)
             {
-                cart.SetSelected(productId.Value, selected);
-            }
-            else
-            {
-                cart.SelectAll(selected);
+                db.CartItems.Remove(item);
+                DbErrors.Save(db);
             }
             return RedirectToAction("Index");
         }
 
         // POST: Cart/ClearCart
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ClearCart()
         {
-            GetCartService().ClearCart();
+            var uid = CurrentUser.UserId;
+            db.CartItems.RemoveRange(db.CartItems.Where(c => c.UserId == uid));
+            DbErrors.Save(db);
             return RedirectToAction("Index");
         }
 
@@ -153,15 +150,6 @@ namespace NguyenTanPhu_23DH114527.Controllers
                 return Redirect(returnUrl);
             }
             return RedirectToAction("Index", "Home");
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }

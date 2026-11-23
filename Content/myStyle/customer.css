@@ -558,3 +558,13 @@ body.customer {
     font-weight: 700;
     font-size: .85rem;
 }
+
+/* Danh gia sach */
+.review-item {
+    border-top: 1px solid var(--line);
+    padding: 12px 0;
+}
+
+.review-item:first-of-type {
+    border-top: 0;
+}

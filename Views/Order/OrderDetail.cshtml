@@ -1,17 +1,17 @@
 ﻿@model NguyenTanPhu_23DH114527.Models.Order
+@using NguyenTanPhu_23DH114527.Models
 @{
-    ViewBag.Title = "Hóa đơn #" + Model.OrderID;
+    ViewBag.Title = "Hóa đơn #" + Model.OrderId;
 }
 
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item">@Html.ActionLink("Đơn hàng của tôi", "MyOrder")</li>
-        <li class="breadcrumb-item active" aria-current="page">Hóa đơn #@Model.OrderID</li>
+        <li class="breadcrumb-item active" aria-current="page">Hóa đơn #@Model.OrderId</li>
     </ol>
 </nav>
 
 <div class="panel">
-    <h1 class="h4">Hóa đơn mua hàng</h1>
     @Html.Partial("~/Views/Shared/_OrderInvoice.cshtml", Model)
 </div>
 
@@ -19,8 +19,16 @@
     @using (Html.BeginForm("BuyAgain", "Order", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
-        <input type="hidden" name="orderId" value="@Model.OrderID" />
-        <button type="submit" class="btn btn-buy">Mua lại</button>
+        <input type="hidden" name="orderId" value="@Model.OrderId" />
+        <button type="submit" class="btn btn-buy">Mua lại cả đơn</button>
+    }
+    @if (Model.Status == OrderStatuses.Pending)
+    {
+        using (Html.BeginForm("Cancel", "Order", new { id = Model.OrderId }, FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?')">Hủy đơn hàng</button>
+        }
     }
     @Html.ActionLink("Quay lại đơn hàng của tôi", "MyOrder", null, new { @class = "btn btn-outline-buy" })
 </div>

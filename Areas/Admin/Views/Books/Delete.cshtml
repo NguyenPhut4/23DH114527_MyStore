@@ -1,0 +1,30 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Book
+@{
+    ViewBag.Title = "Xóa sách";
+    int orderCount = ViewBag.OrderCount;
+}
+
+<h2 class="page-title">Xóa sách</h2>
+
+@if (orderCount > 0)
+{
+    <div class="alert alert-warning" style="max-width:900px">Sách này có trong @orderCount dòng đơn hàng nên <strong>không thể xóa</strong>. Hãy sửa sách và bỏ chọn "Đang kinh doanh" để ngừng bán.</div>
+}
+else
+{
+    <div class="alert alert-danger" style="max-width:900px">Bạn chắc chắn muốn xóa sách này? Thao tác không thể hoàn tác.</div>
+}
+
+@Html.Partial("PVBookInfo", Model)
+
+@using (Html.BeginForm("Delete", "Books", new { id = Model.BookId }, FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="mt-3">
+        @if (orderCount == 0)
+        {
+            <button type="submit" class="btn btn-danger">Xóa</button>
+        }
+        @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
+    </div>
+}

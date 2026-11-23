@@ -1,0 +1,24 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Book
+@* Thông tin sách (chỉ đọc), dùng chung cho Details và Delete *@
+<div class="row g-3" style="max-width: 900px">
+    <div class="col-md-3"><img src="@Url.Content(Model.ImageUrl)" alt="@Model.Title" class="img-fluid rounded" /></div>
+    <div class="col-md-9">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ISBN)</dt><dd class="col-sm-8">@Model.ISBN</dd>
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Title)</dt><dd class="col-sm-8">@Model.Title</dd>
+            <dt class="col-sm-4">Tác giả</dt><dd class="col-sm-8">@Model.AuthorNames</dd>
+            @if (!string.IsNullOrEmpty(Model.TranslatorNames))
+            {
+                <dt class="col-sm-4">Dịch giả</dt><dd class="col-sm-8">@Model.TranslatorNames</dd>
+            }
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.CategoryId)</dt><dd class="col-sm-8">@Model.Category.CategoryName</dd>
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.PublisherId)</dt><dd class="col-sm-8">@Model.Publisher.PublisherName</dd>
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Price)</dt><dd class="col-sm-8">@Model.Price.ToString("N0") đ</dd>
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.StockQuantity)</dt><dd class="col-sm-8">@Model.StockQuantity</dd>
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.PageCount)</dt><dd class="col-sm-8">@Model.PageCount</dd>
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.PublishYear)</dt><dd class="col-sm-8">@Model.PublishYear</dd>
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.IsActive)</dt><dd class="col-sm-8">@(Model.IsActive ? "Đang bán" : "Ngừng bán")</dd>
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Description)</dt><dd class="col-sm-8">@Model.Description</dd>
+        </dl>
+    </div>
+</div>

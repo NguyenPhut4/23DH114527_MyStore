@@ -1,5 +1,8 @@
 ﻿@model NguyenTanPhu_23DH114527.Models.Order
-@* Hoa don mua hang: dung chung cho Admin (Orders/DetailedOrder) va Customer (OrderSuccess, OrderDetail) *@
+@* Hóa đơn mua hàng: dùng chung cho Admin (Orders/DetailedOrder) và Customer (OrderSuccess, OrderDetail) *@
+@{
+    var subTotal = Model.OrderItems.Sum(oi => oi.Quantity * oi.UnitPrice);
+}
 
 <div class="invoice">
     <div class="invoice-head">
@@ -9,29 +12,41 @@
         </div>
         <div class="text-md-end">
             <div class="invoice-title">HÓA ĐƠN MUA HÀNG</div>
-            <div>Số: <strong>#@Model.OrderID</strong></div>
+            <div>Số: <strong>#@Model.OrderId</strong></div>
             <div>Ngày đặt: @Model.OrderDate.ToString("dd/MM/yyyy")</div>
         </div>
     </div>
 
     <div class="invoice-parties">
         <div class="invoice-box">
-            <div class="invoice-box-title">Khách hàng</div>
-            <div class="fw-semibold">@(Model.Customer != null ? Model.Customer.CustomerName : "")</div>
-            <div>SĐT: @(Model.Customer != null ? Model.Customer.CustomerPhone : "")</div>
+            <div class="invoice-box-title">Người nhận</div>
+            <div class="fw-semibold">@Model.ReceiverName</div>
+            <div>SĐT: @Model.ReceiverPhone</div>
             <div>@Html.DisplayNameFor(m => m.ShippingAddress): @Model.ShippingAddress</div>
+            @if (!string.IsNullOrWhiteSpace(Model.Note))
+            {
+                <div>Ghi chú: @Model.Note</div>
+            }
         </div>
         <div class="invoice-box">
             <div class="invoice-box-title">Thanh toán &amp; giao hàng</div>
-            <div>@Html.DisplayNameFor(m => m.PaymentMethod): @Model.PaymentMethod</div>
-            <div>@Html.DisplayNameFor(m => m.PaymentStatus): <strong>@Model.PaymentStatus</strong></div>
-            <div>@Html.DisplayNameFor(m => m.DeliveryMethod): @Model.DeliveryMethod</div>
-            <div>@Html.DisplayNameFor(m => m.OrderStatus): <span class="invoice-status">@Model.OrderStatus</span></div>
+            <div>@Html.DisplayNameFor(m => m.PaymentMethod): @Model.PaymentMethodText</div>
+            <div>@Html.DisplayNameFor(m => m.PaymentStatus): <strong>@Model.PaymentStatusText</strong></div>
+            <div>@Html.DisplayNameFor(m => m.DeliveryMethod): @Model.DeliveryText</div>
+            <div>@Html.DisplayNameFor(m => m.Status): <span class="invoice-status">@Model.StatusText</span></div>
         </div>
     </div>
 
-    @Html.Partial("~/Views/Shared/_OrderDetailList.cshtml", Model.OrderDetails)
+    @Html.Partial("~/Views/Shared/_OrderDetailList.cshtml", Model.OrderItems)
 
+    <div class="invoice-sums">
+        <div><span>Tạm tính</span><span>@subTotal.ToString("N0") đ</span></div>
+        <div><span>Phí vận chuyển</span><span>@(Model.ShippingFee == 0 ? "Miễn phí" : Model.ShippingFee.ToString("N0") + " đ")</span></div>
+        @if (Model.DiscountAmount > 0)
+        {
+            <div><span>Giảm giá@(Model.Coupon != null ? " (" + Model.Coupon.Code + ")" : "")</span><span>-@Model.DiscountAmount.ToString("N0") đ</span></div>
+        }
+    </div>
     <div class="invoice-total">
         <span>@Html.DisplayNameFor(m => m.TotalAmount)</span>
         <strong>@Model.TotalAmount.ToString("N0") đ</strong>

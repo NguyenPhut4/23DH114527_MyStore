@@ -1,24 +1,24 @@
-﻿@model IEnumerable<NguyenTanPhu_23DH114527.Models.OrderDetail>
+﻿@model IEnumerable<NguyenTanPhu_23DH114527.Models.OrderItem>
 
 <div class="table-responsive">
     <table class="table align-middle">
         <thead>
             <tr>
-                <th colspan="2">Sản phẩm</th>
+                <th colspan="2">Sách</th>
                 <th>Số lượng</th>
                 <th>Đơn giá</th>
                 <th class="text-end">Thành tiền</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var od in Model)
+            @foreach (var oi in Model)
             {
                 <tr>
-                    <td style="width: 90px"><img src="@Url.Content(od.Product.ImageUrl)" alt="@od.Product.ProductName" class="product-thumb" /></td>
-                    <td>@od.Product.ProductName</td>
-                    <td>@od.Quantity</td>
-                    <td class="text-nowrap">@od.UnitPrice.ToString("N0") đ</td>
-                    <td class="text-nowrap text-end">@((od.TotalPrice ?? od.Quantity * od.UnitPrice).ToString("N0")) đ</td>
+                    <td style="width: 90px"><img src="@Url.Content(oi.Book.ImageUrl)" alt="@oi.Book.Title" class="product-thumb" /></td>
+                    <td>@oi.Book.Title</td>
+                    <td>@oi.Quantity</td>
+                    <td class="text-nowrap">@oi.UnitPrice.ToString("N0") đ</td>
+                    <td class="text-nowrap text-end">@((oi.Quantity * oi.UnitPrice).ToString("N0")) đ</td>
                 </tr>
             }
         </tbody>

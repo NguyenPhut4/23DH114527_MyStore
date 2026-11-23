@@ -11,7 +11,7 @@
         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             @if (Model.IsLoggedIn)
             {
-                @* Da dang nhap: doi sang icon Ho so nguoi dung (chu cai dau ten) *@
+                @* Đã đăng nhập: đổi sang icon hồ sơ (chữ cái đầu của tên) *@
                 <span class="avatar-icon" aria-hidden="true">@(string.IsNullOrWhiteSpace(Model.DisplayName) ? "?" : Model.DisplayName.Trim().Substring(Model.DisplayName.Trim().LastIndexOf(' ') + 1, 1).ToUpper())</span>
                 <span>Hello, @Model.DisplayName</span>
             }
@@ -24,10 +24,21 @@
         <ul class="dropdown-menu dropdown-menu-end">
             @if (Model.IsLoggedIn)
             {
+                if (Model.Role == "Admin" || Model.Role == "Staff")
+                {
+                    <li>@Html.ActionLink("Trang quản trị", "Index", "Home", new { area = "Admin" }, new { @class = "dropdown-item fw-semibold" })</li>
+                    <li><hr class="dropdown-divider" /></li>
+                }
                 <li>@Html.ActionLink("Thông tin tài khoản", "ProfileInfo", "Account", new { area = "" }, new { @class = "dropdown-item" })</li>
                 <li>@Html.ActionLink("Lịch sử mua hàng", "MyOrder", "Order", new { area = "" }, new { @class = "dropdown-item" })</li>
                 <li><hr class="dropdown-divider" /></li>
-                <li>@Html.ActionLink("Đăng xuất", "Logout", "Account", new { area = "" }, new { @class = "dropdown-item" })</li>
+                <li>
+                    @using (Html.BeginForm("Logout", "Account", new { area = "" }, FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="dropdown-item">Đăng xuất</button>
+                    }
+                </li>
             }
             else
             {
@@ -38,7 +49,7 @@
     </li>
     <li class="nav-item">
         <a class="nav-link cart-link" href="@Url.Action("Index", "Cart", new { area = "" })" aria-label="Giỏ hàng">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4" /><circle cx="18" cy="20" r="1.4" /><path d="M2 3h3l2.6 12.4a1 1 0 0 0 1 .8h9.7a1 1 0 0 0 1-.8L21 7H6" /></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4" /><circle cx="18" cy="20" r="1.4" /><path d="M2 3h3l2.6 12.4a1 1 0 0 0 .8.8h9.7a1 1 0 0 0 1-.8L21 7H6" /></svg>
             <span>Giỏ hàng</span>
             <span class="cart-badge">@Model.CartCount</span>
         </a>

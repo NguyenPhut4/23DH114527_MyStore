@@ -1,0 +1,24 @@
+﻿@model IEnumerable<NguyenTanPhu_23DH114527.Models.Book>
+@if (!Model.Any())
+{
+    <p class="empty-result">KHÔNG CÓ</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-admin align-middle">
+            <thead><tr><th>Tên sách</th><th>Danh mục</th><th>Tồn kho</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var b in Model)
+                {
+                    <tr>
+                        <td>@b.Title</td>
+                        <td>@(b.Category != null ? b.Category.CategoryName : "")</td>
+                        <td class="@(b.StockQuantity == 0 ? "text-danger fw-bold" : "")">@b.StockQuantity</td>
+                        <td>@Html.ActionLink("Nhập hàng", "Edit", "Books", new { area = "Admin", id = b.BookId }, null)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

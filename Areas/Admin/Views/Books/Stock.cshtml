@@ -1,0 +1,14 @@
+﻿@model PagedList.IPagedList<NguyenTanPhu_23DH114527.Models.Book>
+@using PagedList.Mvc
+@{
+    ViewBag.Title = "Quản lý kho";
+    string filter = ViewBag.Filter;
+}
+
+<h2 class="page-title">Quản lý kho</h2>
+<div class="btn-group mb-3">
+    @Html.ActionLink("Hàng cần nhập (≤ 10)", "Stock", new { filter = "low" }, new { @class = "btn btn-outline-primary" + (filter == "low" ? " active" : "") })
+    @Html.ActionLink("Tất cả", "Stock", new { filter = "all" }, new { @class = "btn btn-outline-primary" + (filter == "all" ? " active" : "") })
+</div>
+@Html.Partial("PVStockList", Model)
+@Html.PagedListPager(Model, page => Url.Action("Stock", new { page, filter }))

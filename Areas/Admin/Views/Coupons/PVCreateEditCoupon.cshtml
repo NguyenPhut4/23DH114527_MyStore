@@ -1,0 +1,14 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Coupon
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.CouponId)
+@Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+<div class="row g-3" style="max-width:760px">
+    <div class="col-md-6">@Html.LabelFor(m => m.Code, new { @class = "form-label" })@Html.TextBoxFor(m => m.Code, new { @class = "form-control text-uppercase" })@Html.ValidationMessageFor(m => m.Code, "", new { @class = "text-danger" })</div>
+    <div class="col-md-6">@Html.LabelFor(m => m.DiscountPercent, new { @class = "form-label" })@Html.TextBoxFor(m => m.DiscountPercent, new { @class = "form-control", type = "number" })@Html.ValidationMessageFor(m => m.DiscountPercent, "", new { @class = "text-danger" })</div>
+    <div class="col-md-6">@Html.LabelFor(m => m.MaxDiscount, new { @class = "form-label" })@Html.TextBoxFor(m => m.MaxDiscount, new { @class = "form-control", type = "number" })@Html.ValidationMessageFor(m => m.MaxDiscount, "", new { @class = "text-danger" })</div>
+    <div class="col-md-6">@Html.LabelFor(m => m.MinOrderAmount, new { @class = "form-label" })@Html.TextBoxFor(m => m.MinOrderAmount, new { @class = "form-control", type = "number" })@Html.ValidationMessageFor(m => m.MinOrderAmount, "", new { @class = "text-danger" })</div>
+    <div class="col-md-6">@Html.LabelFor(m => m.StartDate, new { @class = "form-label" })<input type="date" name="StartDate" id="StartDate" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" />@Html.ValidationMessageFor(m => m.StartDate, "", new { @class = "text-danger" })</div>
+    <div class="col-md-6">@Html.LabelFor(m => m.EndDate, new { @class = "form-label" })<input type="date" name="EndDate" id="EndDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" />@Html.ValidationMessageFor(m => m.EndDate, "", new { @class = "text-danger" })</div>
+    <div class="col-md-6">@Html.LabelFor(m => m.UsageLimit, new { @class = "form-label" })@Html.TextBoxFor(m => m.UsageLimit, new { @class = "form-control", type = "number" })@Html.ValidationMessageFor(m => m.UsageLimit, "", new { @class = "text-danger" })</div>
+    <div class="col-md-6 d-flex align-items-end"><div class="form-check">@Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })@Html.LabelFor(m => m.IsActive, new { @class = "form-check-label" })</div></div>
+</div>

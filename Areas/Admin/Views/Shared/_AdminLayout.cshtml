@@ -19,44 +19,45 @@
             </button>
             <div class="collapse navbar-collapse" id="adminNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">@Html.ActionLink("HomeAdmin", "Index", "Home", new { area = "Admin" }, new { @class = "nav-link" })</li>
-                    @* Sub-menu Quan ly danh muc: gom cac bang phu *@
+                    <li class="nav-item">@Html.ActionLink("Thống kê", "Index", "Home", new { area = "Admin" }, new { @class = "nav-link" })</li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Danh mục</a>
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Sách</a>
                         <ul class="dropdown-menu">
-                            <li><h6 class="dropdown-header">Quản lý danh mục</h6></li>
-                            <li>@Html.ActionLink("Danh mục sản phẩm", "Index", "Categories", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
-                            <li>@Html.ActionLink("Thêm danh mục", "Create", "Categories", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
-                        </ul>
-                    </li>
-                    @* Sub-menu Quan ly hang hoa: Product + Product Detail + kho *@
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Sản phẩm</a>
-                        <ul class="dropdown-menu">
-                            <li><h6 class="dropdown-header">Quản lý hàng hóa</h6></li>
-                            <li>@Html.ActionLink("Danh sách sản phẩm", "Index", "Products", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
-                            <li>@Html.ActionLink("Thêm sản phẩm", "Create", "Products", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
+                            <li>@Html.ActionLink("Danh sách sách", "Index", "Books", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
+                            <li>@Html.ActionLink("Thêm sách", "Create", "Books", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
+                            <li>@Html.ActionLink("Quản lý kho", "Stock", "Books", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
                             <li><hr class="dropdown-divider" /></li>
-                            <li>@Html.ActionLink("Quản lý kho hàng", "Stock", "Products", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
+                            <li>@Html.ActionLink("Danh mục", "Index", "Categories", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
+                            <li>@Html.ActionLink("Tác giả / Dịch giả", "Index", "Authors", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
+                            <li>@Html.ActionLink("Nhà xuất bản", "Index", "Publishers", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
                         </ul>
                     </li>
-                    <li class="nav-item">@Html.ActionLink("Khách hàng", "Index", "Customers", new { area = "Admin" }, new { @class = "nav-link" })</li>
                     <li class="nav-item">@Html.ActionLink("Đơn hàng", "Index", "Orders", new { area = "Admin" }, new { @class = "nav-link" })</li>
-                    <li class="nav-item">@Html.ActionLink("Tài khoản", "Index", "Users", new { area = "Admin" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Khách hàng", "Index", "Customers", new { area = "Admin" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Đánh giá", "Index", "Reviews", new { area = "Admin" }, new { @class = "nav-link" })</li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item">@Html.ActionLink("Coupon", "Index", "Coupons", new { area = "Admin" }, new { @class = "nav-link" })</li>
+                        <li class="nav-item">@Html.ActionLink("Tài khoản", "Index", "Users", new { area = "Admin" }, new { @class = "nav-link" })</li>
+                    }
                 </ul>
-                @if (Session["Username"] != null)
-                {
-                    <ul class="navbar-nav">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Xin chào, @Session["Username"]
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>@Html.ActionLink("Đăng xuất", "Logout", "Account", new { area = "Admin" }, new { @class = "dropdown-item" })</li>
-                            </ul>
-                        </li>
-                    </ul>
-                }
+                <ul class="navbar-nav">
+                    <li class="nav-item">@Html.ActionLink("Xem cửa hàng", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Xin chào, @User.Identity.Name
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                @using (Html.BeginForm("Logout", "Account", new { area = "" }, FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                }
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>

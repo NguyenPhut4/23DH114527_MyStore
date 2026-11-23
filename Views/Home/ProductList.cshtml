@@ -1,4 +1,4 @@
-﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.ProductListVM
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.BookListVM
 @using PagedList.Mvc
 @{
     ViewBag.Title = Model.Category.CategoryName;
@@ -19,10 +19,19 @@
     </ol>
 </nav>
 
-<h1 class="h3">@Model.Category.CategoryName <small class="text-muted fs-6">(@Model.Products.TotalItemCount sản phẩm)</small></h1>
+@if (Model.Children.Any())
+{
+    <div class="d-flex flex-wrap gap-2 mb-2">
+        @foreach (var c in Model.Children)
+        {
+            @Html.ActionLink(c.CategoryName, "ProductList", new { id = c.CategoryId }, new { @class = "btn btn-sm btn-outline-secondary" })
+        }
+    </div>
+}
+<h1 class="h3">@Model.Category.CategoryName <small class="text-muted fs-6">(@Model.Books.TotalItemCount sản phẩm)</small></h1>
 
 @* Tieu chi loc: tu khoa, khoang gia, sap xep *@
-@using (Html.BeginForm("ProductList", "Home", new { id = Model.Category.CategoryID }, FormMethod.Get, new { @class = "filter-bar" }))
+@using (Html.BeginForm("ProductList", "Home", new { id = Model.Category.CategoryId }, FormMethod.Get, new { @class = "filter-bar" }))
 {
     <div class="row g-2 align-items-end">
         <div class="col-md-4">
@@ -48,24 +57,24 @@
         </div>
         <div class="col-md-2 d-flex gap-2">
             <button type="submit" class="btn btn-buy flex-grow-1">Lọc</button>
-            @Html.ActionLink("Xóa", "ProductList", new { id = Model.Category.CategoryID }, new { @class = "btn btn-outline-secondary" })
+            @Html.ActionLink("Xóa", "ProductList", new { id = Model.Category.CategoryId }, new { @class = "btn btn-outline-secondary" })
         </div>
     </div>
 }
 
-@if (Model.Products.TotalItemCount == 0)
+@if (Model.Books.TotalItemCount == 0)
 {
     <p class="empty-box">Không có sản phẩm phù hợp.</p>
 }
 else
 {
     <div class="product-grid">
-        @foreach (var p in Model.Products)
+        @foreach (var p in Model.Books)
         {
-            @Html.Partial("~/Views/Shared/_ProductCard.cshtml", p)
+            @Html.Partial("~/Views/Shared/_BookCard.cshtml", p)
         }
     </div>
     <div class="pager-wrap">
-        @Html.PagedListPager(Model.Products, page => Url.Action("ProductList", new { id = Model.Category.CategoryID, page, searchTerm = Model.SearchTerm, sortOrder = Model.SortOrder, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice }))
+        @Html.PagedListPager(Model.Books, page => Url.Action("ProductList", new { id = Model.Category.CategoryId, page, searchTerm = Model.SearchTerm, sortOrder = Model.SortOrder, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice }))
     </div>
 }

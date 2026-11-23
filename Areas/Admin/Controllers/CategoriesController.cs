@@ -1,154 +1,131 @@
-﻿using System.Data.Entity;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using NguyenTanPhu_23DH114527.Areas.Admin.Filters;
+using NguyenTanPhu_23DH114527.Controllers;
 using NguyenTanPhu_23DH114527.Models;
 
 namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
 {
+    // Danh mục 2 cấp (cha/con). Không xóa được danh mục còn sách hoặc còn danh mục con.
     [AdminAuthorize]
-    public class CategoriesController : Controller
+    public class CategoriesController : BaseController
     {
-        private MyStoreEntities db = new MyStoreEntities();
-
-        // GET: Admin/Categories
         public ActionResult Index()
         {
-            var categories = db.Categories.Include(c => c.Products).OrderBy(c => c.CategoryName).ToList();
-            return View(categories);
+            var all = db.Categories.ToList();
+            ViewBag.BookCounts = db.Books.GroupBy(b => b.CategoryId).ToDictionary(g => g.Key, g => g.Count());
+            return View(all);
         }
 
-        // GET: Admin/Categories/Details/5
         public ActionResult Details(int? id)
         {
-            return FindCategory(id, "Details");
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            var c = db.Categories.Find(id);
+            if (c == null) return HttpNotFound();
+            return View(c);
         }
 
-        // GET: Admin/Categories/Create
         public ActionResult Create()
         {
+            FillParents(null, 0);
             return View(new Category());
         }
 
-        // POST: Admin/Categories/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "CategoryID,CategoryName")] Category category)
+        public ActionResult Create(Category category)
         {
-            CheckDuplicateName(category);
+            Validate(category);
             if (ModelState.IsValid)
             {
                 db.Categories.Add(category);
                 var error = DbErrors.Save(db);
-                if (error == null)
-                {
-                    TempData["Success"] = "Đã thêm danh mục \"" + category.CategoryName + "\"";
-                    return RedirectToAction("Index");
-                }
+                if (error == null) { TempData["Success"] = "Đã thêm danh mục " + category.CategoryName; return RedirectToAction("Index"); }
                 ModelState.AddModelError("", error);
             }
+            FillParents(category.ParentId, 0);
             return View(category);
         }
 
-        // GET: Admin/Categories/Edit/5
         public ActionResult Edit(int? id)
         {
-            return FindCategory(id, "Edit");
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            var c = db.Categories.Find(id);
+            if (c == null) return HttpNotFound();
+            FillParents(c.ParentId, c.CategoryId);
+            return View(c);
         }
 
-        // POST: Admin/Categories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "CategoryID,CategoryName")] Category category)
+        public ActionResult Edit(Category input)
         {
-            CheckDuplicateName(category);
+            Validate(input);
             if (ModelState.IsValid)
             {
-                db.Entry(category).State = EntityState.Modified;
+                var c = db.Categories.Find(input.CategoryId);
+                if (c == null) return HttpNotFound();
+                c.CategoryName = input.CategoryName; c.Description = input.Description; c.ParentId = input.ParentId;
                 var error = DbErrors.Save(db);
-                if (error == null)
-                {
-                    TempData["Success"] = "Đã cập nhật danh mục";
-                    return RedirectToAction("Index");
-                }
+                if (error == null) { TempData["Success"] = "Đã cập nhật danh mục " + c.CategoryName; return RedirectToAction("Index"); }
                 ModelState.AddModelError("", error);
             }
-            return View(category);
+            FillParents(input.ParentId, input.CategoryId);
+            return View(input);
         }
 
-        // GET: Admin/Categories/Delete/5
         public ActionResult Delete(int? id)
         {
-            return FindCategory(id, "Delete");
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            var c = db.Categories.Find(id);
+            if (c == null) return HttpNotFound();
+            ViewBag.BookCount = db.Books.Count(b => b.CategoryId == id);
+            ViewBag.ChildCount = db.Categories.Count(x => x.ParentId == id);
+            return View(c);
         }
 
-        // POST: Admin/Categories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            var category = db.Categories.Include(c => c.Products).FirstOrDefault(c => c.CategoryID == id);
-            if (category == null)
+            var c = db.Categories.Find(id);
+            if (c == null) return HttpNotFound();
+            if (db.Books.Any(b => b.CategoryId == id))
             {
-                return HttpNotFound();
+                TempData["Error"] = "Không thể xóa danh mục \"" + c.CategoryName + "\" vì vẫn còn sách thuộc danh mục này.";
+                return RedirectToAction("Index");
             }
-
-            // Kiem tra rang buoc: khong xoa danh muc con san pham
-            if (category.Products.Any())
+            if (db.Categories.Any(x => x.ParentId == id))
             {
-                TempData["Error"] = "Không thể xóa danh mục \"" + category.CategoryName + "\" vì còn "
-                                    + category.Products.Count + " sản phẩm thuộc danh mục này.";
-                return RedirectToAction("Delete", new { id });
+                TempData["Error"] = "Không thể xóa danh mục \"" + c.CategoryName + "\" vì vẫn còn danh mục con.";
+                return RedirectToAction("Index");
             }
-
-            db.Categories.Remove(category);
+            db.Categories.Remove(c);
             var error = DbErrors.Save(db);
-            if (error != null)
-            {
-                TempData["Error"] = error;
-                return RedirectToAction("Delete", new { id });
-            }
-            TempData["Success"] = "Đã xóa danh mục";
+            TempData[error == null ? "Success" : "Error"] = error ?? "Đã xóa danh mục " + c.CategoryName;
             return RedirectToAction("Index");
         }
 
-        // Ham dung chung cho Details / Edit / Delete (GET)
-        private ActionResult FindCategory(int? id, string viewName)
+        private void Validate(Category c)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            var category = db.Categories.Include(c => c.Products).FirstOrDefault(c => c.CategoryID == id);
-            if (category == null)
-            {
-                return HttpNotFound();
-            }
-            return View(viewName, category);
-        }
-
-        private void CheckDuplicateName(Category category)
-        {
-            if (string.IsNullOrWhiteSpace(category.CategoryName))
-            {
-                return;
-            }
-            category.CategoryName = category.CategoryName.Trim();
-            var name = category.CategoryName;
-            if (db.Categories.Any(c => c.CategoryName == name && c.CategoryID != category.CategoryID))
-            {
+            if (!string.IsNullOrWhiteSpace(c.CategoryName) &&
+                db.Categories.Any(x => x.CategoryName == c.CategoryName && x.ParentId == c.ParentId && x.CategoryId != c.CategoryId))
                 ModelState.AddModelError("CategoryName", "Tên danh mục đã tồn tại");
+            if (c.ParentId != null)
+            {
+                if (c.ParentId == c.CategoryId) ModelState.AddModelError("ParentId", "Danh mục không thể là cha của chính nó");
+                var parent = db.Categories.Find(c.ParentId);
+                if (parent == null || parent.ParentId != null) ModelState.AddModelError("ParentId", "Chỉ hỗ trợ 2 cấp: danh mục cha phải là danh mục gốc");
+                if (c.CategoryId != 0 && db.Categories.Any(x => x.ParentId == c.CategoryId))
+                    ModelState.AddModelError("ParentId", "Danh mục đang có danh mục con nên không thể chuyển thành danh mục con");
             }
         }
 
-        protected override void Dispose(bool disposing)
+        private void FillParents(int? selected, int exceptId)
         {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
+            ViewBag.ParentId = new SelectList(db.Categories.Where(c => c.ParentId == null && c.CategoryId != exceptId).OrderBy(c => c.CategoryName),
+                                              "CategoryId", "CategoryName", selected);
         }
     }
 }

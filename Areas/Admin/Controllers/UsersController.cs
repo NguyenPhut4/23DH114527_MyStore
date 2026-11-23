@@ -2,162 +2,141 @@
 using System.Net;
 using System.Web.Mvc;
 using NguyenTanPhu_23DH114527.Areas.Admin.Filters;
+using NguyenTanPhu_23DH114527.Controllers;
 using NguyenTanPhu_23DH114527.Models;
 using NguyenTanPhu_23DH114527.Models.ViewModel;
 using PagedList;
 
 namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
 {
-    // Quan ly tai khoan Admin (UserRole = "A"): CRUD, tim kiem, phan trang
-    [AdminAuthorize]
-    public class UsersController : Controller
+    // Tài khoản quản trị và nhân viên (Admin / Staff): chỉ Admin quản lý
+    [AdminAuthorize(Roles = "Admin")]
+    public class UsersController : BaseController
     {
-        private const string AdminRole = "A";
-        private MyStoreEntities db = new MyStoreEntities();
-
-        // GET: Admin/Users
         public ActionResult Index(UserSearchVM model, int? page)
         {
-            var users = db.Users.Where(u => u.UserRole == AdminRole);
+            var users = db.Users.Where(u => u.Role != UserRoles.Customer);
             if (!string.IsNullOrWhiteSpace(model.SearchTerm))
             {
-                var term = model.SearchTerm.Trim();
-                users = users.Where(u => u.Username.Contains(term));
+                var t = model.SearchTerm.Trim();
+                users = users.Where(u => u.FullName.Contains(t) || u.Username.Contains(t) || u.Email.Contains(t));
             }
-            model.Users = users.OrderBy(u => u.Username).ToPagedList(page ?? 1, model.PageSize);
+            model.Users = users.OrderBy(u => u.Role).ThenBy(u => u.Username).ToPagedList(BookQueries.Page(page), model.PageSize);
             return View(model);
         }
 
-        // GET: Admin/Users/Create
         public ActionResult Create()
         {
-            return View(new User());
+            FillRoles(UserRoles.Staff);
+            return View(new UserFormVM { Role = UserRoles.Staff });
         }
 
-        // POST: Admin/Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Username,Password")] User user, string confirmPassword)
+        public ActionResult Create(UserFormVM vm)
         {
-            if (!string.IsNullOrWhiteSpace(user.Username))
+            if (string.IsNullOrEmpty(vm.Password)) ModelState.AddModelError("Password", "Vui lòng nhập mật khẩu");
+            CheckUnique(vm);
+            CheckRole(vm);
+            if (ModelState.IsValid)
             {
-                user.Username = user.Username.Trim();
-                var name = user.Username;
-                if (db.Users.Any(u => u.Username == name))
+                db.Users.Add(new User
                 {
-                    ModelState.AddModelError("Username", "Tên đăng nhập đã tồn tại");
-                }
+                    Username = vm.Username, FullName = vm.FullName, Email = vm.Email, PhoneNumber = vm.PhoneNumber, Address = vm.Address,
+                    Role = vm.Role, IsActive = vm.IsActive, CreatedAt = System.DateTime.Now, PasswordHash = Auth.HashPassword(vm.Password)
+                });
+                var error = DbErrors.Save(db);
+                if (error == null) { TempData["Success"] = "Đã tạo tài khoản " + vm.Username; return RedirectToAction("Index"); }
+                ModelState.AddModelError("", error);
             }
-            if (user.Password != confirmPassword)
-            {
-                ModelState.AddModelError("confirmPassword", "Mật khẩu xác nhận không khớp");
-            }
-
-            if (ModelState.IsValid)
-            {
-                user.UserRole = AdminRole;
-                db.Users.Add(user);
-                db.SaveChanges();
-                TempData["Success"] = "Đã tạo tài khoản " + user.Username;
-                return RedirectToAction("Index");
-            }
-            return View(user);
+            FillRoles(vm.Role);
+            return View(vm);
         }
 
-        // GET: Admin/Users/Edit/admin  (doi mat khau)
-        public ActionResult Edit(string id)
+        public ActionResult Edit(int? id)
         {
-            return FindAdmin(id, "Edit");
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            var u = db.Users.FirstOrDefault(x => x.UserId == id && x.Role != UserRoles.Customer);
+            if (u == null) return HttpNotFound();
+            FillRoles(u.Role);
+            return View(new UserFormVM
+            {
+                UserId = u.UserId, Username = u.Username, FullName = u.FullName, Email = u.Email, PhoneNumber = u.PhoneNumber,
+                Address = u.Address, Role = u.Role, IsActive = u.IsActive
+            });
         }
 
-        // POST: Admin/Users/Edit/admin
+        // Mật khẩu để trống = giữ nguyên. Không cho tự khóa hoặc hạ quyền chính mình.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Username,Password")] User user, string confirmPassword)
+        public ActionResult Edit(UserFormVM vm)
         {
-            var existing = db.Users.FirstOrDefault(u => u.Username == user.Username && u.UserRole == AdminRole);
-            if (existing == null)
-            {
-                return HttpNotFound();
-            }
-            if (user.Password != confirmPassword)
-            {
-                ModelState.AddModelError("confirmPassword", "Mật khẩu xác nhận không khớp");
-            }
-
+            var u = db.Users.FirstOrDefault(x => x.UserId == vm.UserId && x.Role != UserRoles.Customer);
+            if (u == null) return HttpNotFound();
+            CheckUnique(vm);
+            CheckRole(vm);
+            if (CurrentUser != null && CurrentUser.UserId == u.UserId && (!vm.IsActive || vm.Role != u.Role))
+                ModelState.AddModelError("", "Bạn không thể khóa hoặc đổi vai trò của chính mình.");
             if (ModelState.IsValid)
             {
-                existing.Password = user.Password;
-                db.SaveChanges();
-                TempData["Success"] = "Đã đổi mật khẩu cho " + existing.Username;
-                return RedirectToAction("Index");
+                u.Username = vm.Username; u.FullName = vm.FullName; u.Email = vm.Email; u.PhoneNumber = vm.PhoneNumber;
+                u.Address = vm.Address; u.Role = vm.Role; u.IsActive = vm.IsActive;
+                if (!string.IsNullOrEmpty(vm.Password)) u.PasswordHash = Auth.HashPassword(vm.Password);
+                var error = DbErrors.Save(db);
+                if (error == null) { TempData["Success"] = "Đã cập nhật tài khoản " + u.Username; return RedirectToAction("Index"); }
+                ModelState.AddModelError("", error);
             }
-            return View(user);
+            FillRoles(vm.Role);
+            return View(vm);
         }
 
-        // GET: Admin/Users/Delete/admin
-        public ActionResult Delete(string id)
+        public ActionResult Delete(int? id)
         {
-            return FindAdmin(id, "Delete");
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            var u = db.Users.FirstOrDefault(x => x.UserId == id && x.Role != UserRoles.Customer);
+            return u == null ? (ActionResult)HttpNotFound() : View(u);
         }
 
-        // POST: Admin/Users/Delete/admin
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(string id)
+        public ActionResult DeleteConfirmed(int id)
         {
-            var user = db.Users.FirstOrDefault(u => u.Username == id && u.UserRole == AdminRole);
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-            if (user.Username == (string)Session["Username"])
+            var u = db.Users.FirstOrDefault(x => x.UserId == id && x.Role != UserRoles.Customer);
+            if (u == null) return HttpNotFound();
+            if (CurrentUser != null && CurrentUser.UserId == id)
             {
                 TempData["Error"] = "Không thể xóa tài khoản đang đăng nhập.";
                 return RedirectToAction("Index");
             }
-            if (db.Users.Count(u => u.UserRole == AdminRole) <= 1)
+            if (db.Orders.Any(o => o.UserId == id) || db.Reviews.Any(r => r.UserId == id))
             {
-                TempData["Error"] = "Phải còn ít nhất một tài khoản Admin.";
+                TempData["Error"] = "Tài khoản " + u.Username + " đã phát sinh dữ liệu nên không thể xóa. Hãy khóa tài khoản.";
                 return RedirectToAction("Index");
             }
-            if (db.Customers.Any(c => c.Username == id))
-            {
-                TempData["Error"] = "Tài khoản đang gắn với hồ sơ khách hàng, không thể xóa.";
-                return RedirectToAction("Index");
-            }
-
-            db.Users.Remove(user);
-            db.SaveChanges();
-            TempData["Success"] = "Đã xóa tài khoản " + id;
+            db.CartItems.RemoveRange(db.CartItems.Where(c => c.UserId == id));
+            db.Users.Remove(u);
+            var error = DbErrors.Save(db);
+            TempData[error == null ? "Success" : "Error"] = error ?? "Đã xóa tài khoản " + u.Username;
             return RedirectToAction("Index");
         }
 
-        private ActionResult FindAdmin(string id, string viewName)
+        private void CheckUnique(UserFormVM vm)
         {
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            var user = db.Users.FirstOrDefault(u => u.Username == id && u.UserRole == AdminRole);
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-            if (viewName == "Edit")
-            {
-                user.Password = ""; // khong hien mat khau cu
-            }
-            return View(viewName, user);
+            if (!string.IsNullOrEmpty(vm.Username) && db.Users.Any(x => x.Username == vm.Username && x.UserId != vm.UserId))
+                ModelState.AddModelError("Username", "Tên đăng nhập đã tồn tại");
+            if (!string.IsNullOrEmpty(vm.Email) && db.Users.Any(x => x.Email == vm.Email && x.UserId != vm.UserId))
+                ModelState.AddModelError("Email", "Email đã được sử dụng");
         }
 
-        protected override void Dispose(bool disposing)
+        private void CheckRole(UserFormVM vm)
         {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
+            if (vm.Role != UserRoles.Admin && vm.Role != UserRoles.Staff)
+                ModelState.AddModelError("Role", "Vai trò phải là Admin hoặc Staff");
+        }
+
+        private void FillRoles(string selected)
+        {
+            ViewBag.Roles = new SelectList(new[] { UserRoles.Admin, UserRoles.Staff }, selected);
         }
     }
 }

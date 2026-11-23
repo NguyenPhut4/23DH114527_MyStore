@@ -4,89 +4,75 @@ using System.Linq;
 namespace NguyenTanPhu_23DH114527.Models
 {
     /*
-     * Quy tac chuyen trang thai don hang va trang thai thanh toan (dung chung Admin + DB).
+     * Quy tắc chuyển trạng thái đơn hàng và trạng thái thanh toán.
+     * Trạng thái thanh toán không chọn tay: hệ thống tự cập nhật; CSDL còn có ràng buộc
+     * CK_Orders_StatusPayment và trigger trg_Orders_StatusChange chặn các trường hợp vô lý.
      *
-     *  CHUYEN KHOAN (tra truoc):
-     *    Cho thanh toan --(xac nhan da nhan tien)--> Dang xu ly --> Dang van chuyen --> Da giao
-     *          \--> Da huy                  \--> Da huy (da thu tien -> can hoan tien)
-     *    - Phai "Da thanh toan" truoc khi xu ly / van chuyen / giao.
-     *
-     *  TIEN MAT - COD (tra khi nhan hang):
-     *    Dang xu ly --> Dang van chuyen --(giao thanh cong, thu tien)--> Da giao
-     *          \--> Da huy          \--> Da huy (khach khong nhan hang)
-     *    - Khong co buoc "Cho thanh toan"; chi "Da thanh toan" khi "Da giao".
-     *
-     *  "Da giao" va "Da huy" la trang thai cuoi, khong doi duoc nua.
-     *  Trang thai thanh toan khong chon tay: he thong tu cap nhat theo quy tac tren.
+     *   Trả trước (BANKING, EWALLET): Pending -> (xác nhận đã nhận tiền) Confirmed -> Shipping -> Completed
+     *                                 Pending, Confirmed có thể Cancelled (đã thu tiền thì cần hoàn tiền).
+     *   COD:                          Pending -> Confirmed -> Shipping -> Completed (giao xong tự thành Paid)
+     *                                 Pending, Confirmed, Shipping có thể Cancelled.
+     *   Completed và Cancelled là trạng thái cuối. Hủy đơn: trigger hoàn kho và trả lượt coupon.
      */
     public static class OrderWorkflow
     {
-        public static bool IsBankTransfer(Order order)
-        {
-            return order.PaymentMethod == PaymentMethods.BankTransfer;
-        }
-
         public static bool IsFinal(Order order)
         {
-            return order.OrderStatus == OrderStatuses.Delivered || order.OrderStatus == OrderStatuses.Cancelled;
+            return order.Status == OrderStatuses.Completed || order.Status == OrderStatuses.Cancelled;
         }
 
-        // Cac trang thai duoc phep chuyen tiep tu trang thai hien tai
         public static IList<string> NextStatuses(Order order)
         {
-            var transfer = IsBankTransfer(order);
-            switch (order.OrderStatus)
+            var prepaid = PayMethods.IsPrepaid(order.PaymentMethod);
+            switch (order.Status)
             {
                 case OrderStatuses.Pending:
-                    return new[] { OrderStatuses.Processing, OrderStatuses.Cancelled };
-                case OrderStatuses.Processing:
+                    return new[] { OrderStatuses.Confirmed, OrderStatuses.Cancelled };
+                case OrderStatuses.Confirmed:
                     return new[] { OrderStatuses.Shipping, OrderStatuses.Cancelled };
                 case OrderStatuses.Shipping:
-                    return transfer
-                        ? new[] { OrderStatuses.Delivered }
-                        : new[] { OrderStatuses.Delivered, OrderStatuses.Cancelled };
+                    return prepaid
+                        ? new[] { OrderStatuses.Completed }
+                        : new[] { OrderStatuses.Completed, OrderStatuses.Cancelled };
                 default:
                     return new string[0];
             }
         }
 
-        /// <summary>Ap dung chuyen trang thai. Tra ve null neu thanh cong, nguoc lai la thong bao loi.</summary>
-        /// <param name="paymentReceived">Admin xac nhan da nhan tien chuyen khoan (chi dung khi don dang Cho thanh toan).</param>
+        /// <returns>null nếu thành công, ngược lại là thông báo lỗi.</returns>
         public static string Apply(Order order, string newStatus, bool paymentReceived)
         {
             if (IsFinal(order))
             {
-                return "Đơn hàng đã ở trạng thái \"" + order.OrderStatus + "\", không thể thay đổi (không hợp lệ).";
+                return "Đơn hàng đã ở trạng thái \"" + OrderStatuses.Text(order.Status) + "\", không thể thay đổi.";
             }
             if (!NextStatuses(order).Contains(newStatus))
             {
-                return "Không thể chuyển từ \"" + order.OrderStatus + "\" sang \"" + newStatus + "\" (không hợp lệ).";
+                return "Không thể chuyển từ \"" + OrderStatuses.Text(order.Status) + "\" sang \"" + OrderStatuses.Text(newStatus) + "\".";
             }
 
-            if (order.OrderStatus == OrderStatuses.Pending && newStatus == OrderStatuses.Processing)
+            if (order.Status == OrderStatuses.Pending && newStatus == OrderStatuses.Confirmed && PayMethods.IsPrepaid(order.PaymentMethod))
             {
                 if (!paymentReceived)
                 {
-                    return "Đơn chuyển khoản phải xác nhận \"Đã nhận tiền\" trước khi chuyển sang \"Đang xử lý\".";
+                    return "Đơn trả trước phải xác nhận \"Đã nhận tiền\" trước khi chuyển sang \"Đang xử lý\".";
                 }
-                order.PaymentStatus = PaymentStatuses.Paid;
+                order.PaymentStatus = PayStatuses.Paid;
             }
 
-            // COD: giao thanh cong = da thu tien
-            if (newStatus == OrderStatuses.Delivered)
+            if (newStatus == OrderStatuses.Completed)
             {
-                order.PaymentStatus = PaymentStatuses.Paid;
+                order.PaymentStatus = PayStatuses.Paid;   // COD: giao thành công là đã thu tiền
             }
 
-            order.OrderStatus = newStatus;
+            order.Status = newStatus;
             return null;
         }
 
-        // Ghi chu hien tren trang cap nhat
         public static string RefundNote(Order order)
         {
-            return order.OrderStatus == OrderStatuses.Cancelled && order.PaymentStatus == PaymentStatuses.Paid
-                ? "Đơn đã hủy sau khi khách chuyển khoản: cần hoàn tiền cho khách."
+            return order.Status == OrderStatuses.Cancelled && order.PaymentStatus == PayStatuses.Paid
+                ? "Đơn đã hủy sau khi khách trả trước: cần hoàn tiền cho khách."
                 : null;
         }
     }

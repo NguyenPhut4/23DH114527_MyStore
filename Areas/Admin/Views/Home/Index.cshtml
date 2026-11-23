@@ -12,12 +12,13 @@
         <div class="card stat-card border-primary h-100"><div class="card-body">
             <div class="text-muted">Tổng đơn hàng</div>
             <div class="stat-value text-primary">@Model.TotalOrders</div>
+            <div class="small text-muted">@Model.PendingOrders đơn chờ thanh toán</div>
         </div></div>
     </div>
     <div class="col-6 col-lg-3">
         <div class="card stat-card border-success h-100"><div class="card-body">
             <div class="text-muted">Doanh thu (trừ đơn hủy)</div>
-            <div class="stat-value text-success">@Model.TotalRevenue.ToString("N0") đ</div>
+            <div class="stat-value text-success">@Model.Revenue.ToString("N0") đ</div>
         </div></div>
     </div>
     <div class="col-6 col-lg-3">
@@ -28,8 +29,8 @@
     </div>
     <div class="col-6 col-lg-3">
         <div class="card stat-card border-warning h-100"><div class="card-body">
-            <div class="text-muted">Sản phẩm</div>
-            <div class="stat-value text-warning">@Model.TotalProducts</div>
+            <div class="text-muted">Đầu sách</div>
+            <div class="stat-value text-warning">@Model.TotalBooks</div>
         </div></div>
     </div>
 </div>
@@ -49,19 +50,43 @@
     </div>
     <div class="col-lg-6">
         <div class="card h-100"><div class="card-body">
-            <h5 class="card-title">Top 5 sản phẩm bán chạy</h5>
-            <div id="topChart" style="height: 300px"></div>
+            <h5 class="card-title">Doanh thu theo danh mục</h5>
+            @using (Html.BeginForm("Index", "Home", FormMethod.Get, new { @class = "row g-2 mb-2" }))
+            {
+                <div class="col-5"><input type="date" name="from" class="form-control form-control-sm" value="@Model.From.ToString("yyyy-MM-dd")" /></div>
+                <div class="col-5"><input type="date" name="to" class="form-control form-control-sm" value="@Model.To.ToString("yyyy-MM-dd")" /></div>
+                <div class="col-2"><button class="btn btn-sm btn-primary w-100">Lọc</button></div>
+            }
+            @if (!Model.RevenueByCategory.Any())
+            {
+                <p class="empty-result">KHÔNG CÓ</p>
+            }
+            else
+            {
+                <div id="categoryChart" style="height: 280px"></div>
+            }
         </div></div>
     </div>
     <div class="col-lg-6">
         <div class="card h-100"><div class="card-body">
+            <h5 class="card-title">Top 5 tác giả bán chạy</h5>
+            @if (!Model.TopAuthors.Any())
+            {
+                <p class="empty-result">KHÔNG CÓ</p>
+            }
+            else
+            {
+                <div id="authorChart" style="height: 300px"></div>
+            }
+        </div></div>
+    </div>
+    <div class="col-12">
+        <div class="card"><div class="card-body">
             <h5 class="card-title d-flex justify-content-between">
-                <span>Hàng cần nhập (hết hàng)</span>
-                @Html.ActionLink("Quản lý kho", "Stock", "Products", null, new { @class = "btn btn-sm btn-outline-primary" })
+                <span>Sách sắp hết hàng (tồn ≤ 10)</span>
+                @Html.ActionLink("Quản lý kho", "Stock", "Books", null, new { @class = "btn btn-sm btn-outline-primary" })
             </h5>
-            @Html.Partial("~/Areas/Admin/Views/Products/PVStockList.cshtml", Model.OutOfStockProducts)
-            <h6 class="mt-3">Sắp hết hàng</h6>
-            @Html.Partial("~/Areas/Admin/Views/Products/PVStockList.cshtml", Model.InStockProducts)
+            @Html.Partial("~/Areas/Admin/Views/Books/PVStockList.cshtml", Model.LowStock)
         </div></div>
     </div>
 </div>
@@ -71,33 +96,33 @@
     <script>
         google.charts.load('current', { packages: ['corechart'] });
         google.charts.setOnLoadCallback(function () {
-            var money = { pattern: '#,### đ' };
-
-            var revenue = new google.visualization.DataTable();
-            revenue.addColumn('string', 'Tháng');
-            revenue.addColumn('number', 'Doanh thu');
-            revenue.addRows(@toRows(Model.RevenueByMonth));
-            new google.visualization.NumberFormat(money).format(revenue, 1);
+            function table(a, b, rows) {
+                var t = new google.visualization.DataTable();
+                t.addColumn('string', a); t.addColumn('number', b); t.addRows(rows); return t;
+            }
+            var revenue = table('Tháng', 'Doanh thu', @toRows(Model.RevenueByMonth));
+            new google.visualization.NumberFormat({ pattern: '#,### đ' }).format(revenue, 1);
             new google.visualization.ColumnChart(document.getElementById('revenueChart')).draw(revenue, {
-                legend: 'none', colors: ['#2a7de1'], vAxis: { format: 'short' }, chartArea: { width: '85%', height: '75%' }
+                legend: 'none', colors: ['#e85d04'], vAxis: { format: 'short' }, chartArea: { width: '85%', height: '75%' }
             });
 
-            var status = new google.visualization.DataTable();
-            status.addColumn('string', 'Trạng thái');
-            status.addColumn('number', 'Số đơn');
-            status.addRows(@toRows(Model.OrdersByStatus));
-            new google.visualization.PieChart(document.getElementById('statusChart')).draw(status, {
+            new google.visualization.PieChart(document.getElementById('statusChart')).draw(table('Trạng thái', 'Số đơn', @toRows(Model.OrdersByStatus)), {
                 pieHole: 0.4, legend: { position: 'bottom' }, chartArea: { width: '95%', height: '75%' },
                 colors: ['#f0ad4e', '#5bc0de', '#2a7de1', '#5cb85c', '#d9534f']
             });
 
-            var top = new google.visualization.DataTable();
-            top.addColumn('string', 'Sản phẩm');
-            top.addColumn('number', 'Đã bán');
-            top.addRows(@toRows(Model.TopProducts));
-            new google.visualization.BarChart(document.getElementById('topChart')).draw(top, {
-                legend: 'none', colors: ['#5cb85c'], chartArea: { left: 220, width: '55%', height: '80%' }
-            });
+            var cat = document.getElementById('categoryChart');
+            if (cat) {
+                var c = table('Danh mục', 'Doanh thu', @toRows(Model.RevenueByCategory));
+                new google.visualization.NumberFormat({ pattern: '#,### đ' }).format(c, 1);
+                new google.visualization.PieChart(cat).draw(c, { legend: { position: 'right' }, chartArea: { width: '90%', height: '85%' } });
+            }
+            var au = document.getElementById('authorChart');
+            if (au) {
+                new google.visualization.BarChart(au).draw(table('Tác giả', 'Đã bán', @toRows(Model.TopAuthors)), {
+                    legend: 'none', colors: ['#5cb85c'], chartArea: { left: 150, width: '60%', height: '80%' }
+                });
+            }
         });
     </script>
 }

@@ -1,4 +1,4 @@
-﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.HomeProductVM
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.HomeBookVM
 @{
     ViewBag.Title = "Trang chủ";
     var searching = !string.IsNullOrWhiteSpace(Model.SearchTerm);
@@ -39,12 +39,12 @@
     }
 </section>
 
-@if (searching && !Model.FeaturedProducts.Any())
+@if (searching && !Model.FeaturedBooks.Any())
 {
     <p class="empty-box">Không tìm thấy sản phẩm phù hợp.</p>
 }
 else
 {
-    @Html.Partial("_PVFeatureProduct", Model)
-    @Html.Partial("_PVNewProduct", Model)
+    @Html.Partial("_PVFeatureBook", Model)
+    @Html.Partial("_PVNewBook", Model)
 }

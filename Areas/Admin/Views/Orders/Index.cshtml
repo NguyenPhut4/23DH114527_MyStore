@@ -2,11 +2,12 @@
 @using PagedList.Mvc
 @{
     ViewBag.Title = "Đơn hàng";
+    var dateText = Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("yyyy-MM-dd") : null;
     Func<string, string, string> sortLink = (asc, desc) => Url.Action("Index", new
     {
         customerName = Model.CustomerName,
         paymentStatus = Model.PaymentStatus,
-        orderDate = Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("yyyy-MM-dd") : null,
+        orderDate = dateText,
         sortOrder = Model.SortOrder == asc ? desc : asc
     });
 }
@@ -25,8 +26,7 @@
         </div>
         <div class="col-md-3">
             @Html.LabelFor(m => m.OrderDate, new { @class = "form-label" })
-            <input type="date" name="OrderDate" id="OrderDate" class="form-control"
-                   value="@(Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("yyyy-MM-dd") : "")" />
+            <input type="date" name="OrderDate" id="OrderDate" class="form-control" value="@dateText" />
         </div>
         <div class="col-md-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Tìm kiếm</button>
@@ -44,7 +44,6 @@
 else
 {
     <p class="text-muted">Có @Model.Orders.TotalItemCount đơn hàng. Bấm vào tiêu đề cột để sắp xếp.</p>
-    @* Partial danh sach don hang dung chung voi trang Chi tiet khach hang *@
     @Html.Partial("PVOrderList", Model.Orders, new ViewDataDictionary { { "ShowCustomer", true }, { "SortLink", sortLink } })
 
     @Html.PagedListPager(Model.Orders, page => Url.Action("Index", new
@@ -52,7 +51,7 @@ else
         page,
         customerName = Model.CustomerName,
         paymentStatus = Model.PaymentStatus,
-        orderDate = Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("yyyy-MM-dd") : null,
+        orderDate = dateText,
         sortOrder = Model.SortOrder
     }))
 }

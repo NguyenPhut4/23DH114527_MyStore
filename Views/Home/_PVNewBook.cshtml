@@ -1,0 +1,25 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.HomeBookVM
+@using PagedList.Mvc
+
+<section class="section-block" id="new-products">
+    <div class="section-head">
+        <h2>Danh sách sản phẩm</h2>
+        <span class="text-muted">Sách mới nhất · @Model.NewBooks.TotalItemCount cuốn</span>
+    </div>
+    @if (Model.NewBooks.TotalItemCount == 0)
+    {
+        <p class="empty-box">Không có sản phẩm.</p>
+    }
+    else
+    {
+        <div class="product-grid">
+            @foreach (var p in Model.NewBooks)
+            {
+                @Html.Partial("~/Views/Shared/_BookCard.cshtml", p)
+            }
+        </div>
+        <div class="pager-wrap">
+            @Html.PagedListPager(Model.NewBooks, page => Url.Action("Index", new { page, searchTerm = Model.SearchTerm }) + "#new-products")
+        </div>
+    }
+</section>

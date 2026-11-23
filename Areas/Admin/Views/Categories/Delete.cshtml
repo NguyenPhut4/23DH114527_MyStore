@@ -1,34 +1,17 @@
 ﻿@model NguyenTanPhu_23DH114527.Models.Category
-@{
-    ViewBag.Title = "Xóa danh mục";
-}
-
+@{ ViewBag.Title = "Xóa danh mục"; int books = ViewBag.BookCount; int kids = ViewBag.ChildCount; }
 <h2 class="page-title">Xóa danh mục</h2>
-
-@if (Model.Products.Any())
+@if (books > 0 || kids > 0)
 {
-    <div class="alert alert-warning">
-        Danh mục này đang có <strong>@Model.Products.Count</strong> sản phẩm. Hãy chuyển hoặc xóa các sản phẩm đó trước.
-    </div>
+    <div class="alert alert-warning" style="max-width:640px">Danh mục "@Model.CategoryName" còn @books cuốn sách và @kids danh mục con nên <strong>không thể xóa</strong>.</div>
 }
 else
 {
-    <h5>Bạn có chắc muốn xóa danh mục này?</h5>
+    <div class="alert alert-danger" style="max-width:640px">Xóa danh mục "@Model.CategoryName"?</div>
 }
-
-<dl class="row">
-    <dt class="col-sm-2">@Html.DisplayNameFor(m => m.CategoryID)</dt>
-    <dd class="col-sm-10">@Model.CategoryID</dd>
-    <dt class="col-sm-2">@Html.DisplayNameFor(m => m.CategoryName)</dt>
-    <dd class="col-sm-10">@Model.CategoryName</dd>
-</dl>
-
-@using (Html.BeginForm("Delete", "Categories", new { id = Model.CategoryID }, FormMethod.Post))
+@using (Html.BeginForm("Delete", "Categories", new { id = Model.CategoryId }, FormMethod.Post))
 {
     @Html.AntiForgeryToken()
-    if (!Model.Products.Any())
-    {
-        <button type="submit" class="btn btn-danger">Xóa</button>
-    }
-    @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary" })
+    if (books == 0 && kids == 0) { <button type="submit" class="btn btn-danger">Xóa</button> }
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
 }

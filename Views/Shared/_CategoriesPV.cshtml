@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<NguyenTanPhu_23DH114527.Models.Category>
+@* Menu danh mục 2 cấp: danh mục gốc là mục đậm, danh mục con thụt vào bên dưới *@
 
 <ul class="navbar-nav category-menu">
     <li class="nav-item dropdown">
@@ -7,9 +8,13 @@
             Danh mục
         </a>
         <ul class="dropdown-menu">
-            @foreach (var c in Model)
+            @foreach (var root in Model)
             {
-                <li>@Html.ActionLink(c.CategoryName, "ProductList", "Home", new { area = "", id = c.CategoryID }, new { @class = "dropdown-item" })</li>
+                <li>@Html.ActionLink(root.CategoryName, "ProductList", "Home", new { area = "", id = root.CategoryId }, new { @class = "dropdown-item fw-semibold" })</li>
+                foreach (var child in root.ChildCategories.OrderBy(c => c.CategoryName))
+                {
+                    <li>@Html.ActionLink("› " + child.CategoryName, "ProductList", "Home", new { area = "", id = child.CategoryId }, new { @class = "dropdown-item ps-4 small" })</li>
+                }
             }
         </ul>
     </li>

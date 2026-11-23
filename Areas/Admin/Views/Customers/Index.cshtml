@@ -1,63 +1,33 @@
-﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.CustomerSearchVM
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.UserSearchVM
 @using PagedList.Mvc
 @{
     ViewBag.Title = "Khách hàng";
-    Func<string, string, string> sortLink = (asc, desc) =>
-        Url.Action("Index", new { searchTerm = Model.SearchTerm, sortOrder = Model.SortOrder == asc ? desc : asc });
+    Func<string, string, string> sortLink = (asc, desc) => Url.Action("Index", new { searchTerm = Model.SearchTerm, sortOrder = Model.SortOrder == asc ? desc : asc });
 }
-
-@using (Html.BeginForm("Index", "Customers", FormMethod.Get))
+<h2 class="page-title">Khách hàng</h2>
+@using (Html.BeginForm("Index", "Customers", FormMethod.Get, new { @class = "row g-2 my-2" }))
 {
-    @Html.Hidden("sortOrder", Model.SortOrder)
-    <div class="row g-3 align-items-end mt-1">
-        <div class="col-md-5">
-            @Html.LabelFor(m => m.SearchTerm, new { @class = "form-label" })
-            @Html.TextBoxFor(m => m.SearchTerm, new { @class = "form-control", placeholder = "Tên, SĐT, email hoặc tài khoản" })
-        </div>
-        <div class="col-md-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-            @Html.ActionLink("Xóa lọc", "Index", null, new { @class = "btn btn-outline-secondary" })
-        </div>
-    </div>
+    <div class="col-md-4">@Html.TextBoxFor(m => m.SearchTerm, new { @class = "form-control", placeholder = "Tên, tài khoản, email, SĐT" })</div>
+    <div class="col-auto"><button class="btn btn-primary">Tìm kiếm</button> @Html.ActionLink("Xóa lọc", "Index", null, new { @class = "btn btn-outline-secondary" })</div>
 }
-
-<h2 class="page-title mt-3">Danh sách khách hàng</h2>
-
-@if (Model.Customers.TotalItemCount == 0)
-{
-    <p class="empty-result">KHÔNG CÓ</p>
-}
+@if (Model.Users.TotalItemCount == 0) { <p class="empty-result">KHÔNG CÓ</p> }
 else
 {
     <div class="table-responsive">
         <table class="table table-admin">
-            <thead>
-                <tr>
-                    <th>Mã KH</th>
-                    <th><a href="@sortLink("name_asc", "name_desc")">Tên khách hàng ⇅</a></th>
-                    <th>Số điện thoại</th>
-                    <th>Email</th>
-                    <th>Tài khoản</th>
-                    <th><a href="@sortLink("orders_desc", "orders_asc")">Số đơn hàng ⇅</a></th>
-                    <th></th>
-                </tr>
-            </thead>
+            <thead><tr>
+                <th><a href="@sortLink("name_asc", "name_desc")">Họ tên ⇅</a></th><th>Tài khoản</th><th>Email</th><th>SĐT</th>
+                <th><a href="@sortLink("orders_desc", "orders_asc")">Số đơn ⇅</a></th><th>Trạng thái</th><th></th>
+            </tr></thead>
             <tbody>
-                @foreach (var c in Model.Customers)
+                @foreach (var u in Model.Users)
                 {
-                    <tr>
-                        <td>@c.CustomerID</td>
-                        <td>@c.CustomerName</td>
-                        <td>@c.CustomerPhone</td>
-                        <td>@c.CustomerEmail</td>
-                        <td>@c.Username</td>
-                        <td>@c.Orders.Count</td>
-                        <td class="text-end">@Html.ActionLink("Chi tiết", "Details", new { id = c.CustomerID }, new { @class = "btn btn-sm btn-info" })</td>
-                    </tr>
+                    <tr><td>@u.FullName</td><td>@u.Username</td><td>@u.Email</td><td>@u.PhoneNumber</td><td>@u.Orders.Count</td>
+                        <td>@(u.IsActive ? "Hoạt động" : "Đã khóa")</td>
+                        <td>@Html.ActionLink("Chi tiết", "Details", new { id = u.UserId })</td></tr>
                 }
             </tbody>
         </table>
     </div>
-
-    @Html.PagedListPager(Model.Customers, page => Url.Action("Index", new { page, searchTerm = Model.SearchTerm, sortOrder = Model.SortOrder }))
+    @Html.PagedListPager(Model.Users, page => Url.Action("Index", new { page, searchTerm = Model.SearchTerm, sortOrder = Model.SortOrder }))
 }

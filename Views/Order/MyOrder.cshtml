@@ -28,7 +28,7 @@
             @foreach (var s in OrderStatuses.All)
             {
                 <a href="@Url.Action("MyOrder", new { status = s, searchTerm = Model.SearchTerm })" class="@(Model.Status == s ? "active" : "")">
-                    @s <span class="count">@Model.StatusCounts[s]</span>
+                    @OrderStatuses.Text(s) <span class="count">@Model.StatusCounts[s]</span>
                 </a>
             }
         </nav>
@@ -54,73 +54,81 @@
 
         foreach (var group in Model.Groups)
         {
-            <section class="status-group" id="group-@Array.IndexOf(OrderStatuses.All.ToArray(), group.Status)">
+            var gi = OrderStatuses.Index(group.Status);
+            <section class="status-group" id="group-@gi">
                 @if (Model.Status == null)
                 {
-                    <h2 class="status-title">@group.Status <span class="text-muted">(@group.TotalCount)</span></h2>
+                    <h2 class="status-title">@OrderStatuses.Text(group.Status) <span class="text-muted">(@group.TotalCount)</span></h2>
                 }
 
                 @foreach (var order in group.Orders)
                 {
-                    var details = order.OrderDetails.ToList();
-                    var collapseId = "more-" + order.OrderID;
+                    var items = order.OrderItems.ToList();
+                    var collapseId = "more-" + order.OrderId;
                     <article class="order-card">
                         <header class="order-card-head">
-                            <span class="status-label status-@Array.IndexOf(OrderStatuses.All.ToArray(), order.OrderStatus)">@order.OrderStatus</span>
-                            <span class="text-muted small">Mã đơn #@order.OrderID · Ngày đặt @order.OrderDate.ToString("dd/MM/yyyy")</span>
+                            <span class="status-label status-@gi">@order.StatusText</span>
+                            <span class="text-muted small">Mã đơn #@order.OrderId · Ngày đặt @order.OrderDate.ToString("dd/MM/yyyy")</span>
                         </header>
 
-                        @for (var i = 0; i < details.Count; i++)
+                        @for (var i = 0; i < items.Count; i++)
                         {
-                            var od = details[i];
+                            var oi = items[i];
                             if (i == 2)
                             {
                                 @:<div class="collapse" id="@collapseId">
                             }
+                            @* Mỗi sách có nút MUA LẠI (số lượng = 1) và XEM CHI TIẾT (trang chi tiết của chính sách đó) *@
                             <div class="order-item">
-                                <a href="@Url.Action("ProductDetail", "Home", new { id = od.ProductID })" class="order-thumb">
-                                    <img src="@Url.Content(od.Product.ImageUrl)" alt="@od.Product.ProductName" />
-                                    <span class="qty">x@(od.Quantity)</span>
+                                <a href="@Url.Action("ProductDetail", "Home", new { id = oi.BookId })" class="order-thumb">
+                                    <img src="@Url.Content(oi.Book.ImageUrl)" alt="@oi.Book.Title" />
+                                    <span class="qty">x@(oi.Quantity)</span>
                                 </a>
                                 <div class="order-item-info">
-                                    <a href="@Url.Action("ProductDetail", "Home", new { id = od.ProductID })" class="order-item-name">@od.Product.ProductName</a>
-                                    @* De Ktra: moi san pham co nut MUA LAI (vao gio, so luong = 1)
-                                       va XEM CHI TIET (trang chi tiet cua CHINH san pham nay) *@
+                                    <a href="@Url.Action("ProductDetail", "Home", new { id = oi.BookId })" class="order-item-name">@oi.Book.Title</a>
                                     <div class="order-item-actions">
                                         @using (Html.BeginForm("BuyAgain", "Order", FormMethod.Post, new { @class = "d-inline" }))
                                         {
                                             @Html.AntiForgeryToken()
-                                            <input type="hidden" name="productId" value="@od.ProductID" />
+                                            <input type="hidden" name="bookId" value="@oi.BookId" />
                                             <button type="submit" class="btn btn-sm btn-outline-primary">Mua lại</button>
                                         }
-                                        <a href="@Url.Action("ProductDetail", "Home", new { id = od.ProductID })" class="btn btn-sm btn-outline-secondary">Xem chi tiết</a>
+                                        <a href="@Url.Action("ProductDetail", "Home", new { id = oi.BookId })" class="btn btn-sm btn-outline-secondary">Xem chi tiết</a>
                                     </div>
                                 </div>
-                                <div class="order-item-price">@((od.TotalPrice ?? od.Quantity * od.UnitPrice).ToString("N0")) đ</div>
+                                <div class="order-item-price">@((oi.Quantity * oi.UnitPrice).ToString("N0")) đ</div>
                             </div>
-                            if (i == details.Count - 1 && details.Count > 2)
+                            if (i == items.Count - 1 && items.Count > 2)
                             {
                                 @:</div>
                             }
                         }
 
-                        @if (details.Count > 2)
+                        @if (items.Count > 2)
                         {
                             <button type="button" class="btn btn-sm btn-light border more-items" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false">
-                                Xem thêm @(details.Count - 2) sản phẩm
+                                Xem thêm @(items.Count - 2) sản phẩm
                             </button>
                         }
 
                         <footer class="order-card-foot">
                             <div>Tổng tiền: <strong>@order.TotalAmount.ToString("N0") đ</strong></div>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 flex-wrap">
+                                @if (order.Status == OrderStatuses.Pending)
+                                {
+                                    using (Html.BeginForm("Cancel", "Order", new { id = order.OrderId }, FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Bạn chắc chắn muốn hủy đơn #@order.OrderId?')">Hủy đơn</button>
+                                    }
+                                }
                                 @using (Html.BeginForm("BuyAgain", "Order", FormMethod.Post))
                                 {
                                     @Html.AntiForgeryToken()
-                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <input type="hidden" name="orderId" value="@order.OrderId" />
                                     <button type="submit" class="btn btn-light border btn-sm">Mua lại cả đơn</button>
                                 }
-                                @Html.ActionLink("Xem hóa đơn", "OrderDetail", new { id = order.OrderID }, new { @class = "btn btn-light border btn-sm" })
+                                @Html.ActionLink("Xem hóa đơn", "OrderDetail", new { id = order.OrderId }, new { @class = "btn btn-light border btn-sm" })
                             </div>
                         </footer>
                     </article>
@@ -128,8 +136,8 @@
 
                 @if (group.TotalCount > group.Orders.Count && !group.Expanded)
                 {
-                    <a class="see-more" href="@Url.Action("MyOrder", new { status = Model.Status, expand = group.Status, searchTerm = Model.SearchTerm })#group-@Array.IndexOf(OrderStatuses.All.ToArray(), group.Status)">
-                        Xem thêm đơn "@group.Status" (@(group.TotalCount - group.Orders.Count) đơn)
+                    <a class="see-more" href="@Url.Action("MyOrder", new { status = Model.Status, expand = group.Status, searchTerm = Model.SearchTerm })#group-@gi">
+                        Xem thêm đơn "@OrderStatuses.Text(group.Status)" (@(group.TotalCount - group.Orders.Count) đơn)
                     </a>
                 }
                 else if (group.Expanded && group.TotalCount > group.Orders.Count)

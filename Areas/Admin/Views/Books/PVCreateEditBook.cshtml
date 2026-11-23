@@ -1,0 +1,83 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Book
+@* Form dùng chung cho Create và Edit *@
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.BookId)
+@Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+<div class="row g-3" style="max-width: 1000px">
+    <div class="col-md-4">
+        @Html.LabelFor(m => m.ISBN, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.ISBN, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.ISBN, "", new { @class = "text-danger" })
+    </div>
+    <div class="col-md-8">
+        @Html.LabelFor(m => m.Title, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.Title, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+    </div>
+    <div class="col-md-6">
+        @Html.LabelFor(m => m.CategoryId, new { @class = "form-label" })
+        @Html.DropDownList("CategoryId", (SelectList)ViewBag.CategoryId, "-- Chọn danh mục --", new { @class = "form-select" })
+        @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
+    </div>
+    <div class="col-md-6">
+        @Html.LabelFor(m => m.PublisherId, new { @class = "form-label" })
+        @Html.DropDownList("PublisherId", (SelectList)ViewBag.PublisherId, "-- Chọn NXB --", new { @class = "form-select" })
+        @Html.ValidationMessageFor(m => m.PublisherId, "", new { @class = "text-danger" })
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="authorIds">Tác giả (người đầu tiên là tác giả chính)</label>
+        @Html.ListBox("authorIds", (MultiSelectList)ViewBag.AuthorIds, new { @class = "form-select", size = 5 })
+        <div class="form-text">Giữ Ctrl để chọn nhiều người.</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="translatorIds">Dịch giả</label>
+        @Html.ListBox("translatorIds", (MultiSelectList)ViewBag.TranslatorIds, new { @class = "form-select", size = 5 })
+    </div>
+    <div class="col-6 col-md-3">
+        @Html.LabelFor(m => m.Price, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.Price, new { @class = "form-control", type = "number", step = "1000" })
+        @Html.ValidationMessageFor(m => m.Price, "", new { @class = "text-danger" })
+    </div>
+    <div class="col-6 col-md-3">
+        @Html.LabelFor(m => m.StockQuantity, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.StockQuantity, new { @class = "form-control", type = "number" })
+        @Html.ValidationMessageFor(m => m.StockQuantity, "", new { @class = "text-danger" })
+    </div>
+    <div class="col-6 col-md-3">
+        @Html.LabelFor(m => m.PageCount, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.PageCount, new { @class = "form-control", type = "number" })
+        @Html.ValidationMessageFor(m => m.PageCount, "", new { @class = "text-danger" })
+    </div>
+    <div class="col-6 col-md-3">
+        @Html.LabelFor(m => m.PublishYear, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.PublishYear, new { @class = "form-control", type = "number" })
+        @Html.ValidationMessageFor(m => m.PublishYear, "", new { @class = "text-danger" })
+    </div>
+    <div class="col-12">
+        @Html.LabelFor(m => m.Description, new { @class = "form-label" })
+        @Html.TextAreaFor(m => m.Description, 4, 60, new { @class = "form-control" })
+    </div>
+    <div class="col-md-8">
+        <label class="form-label" for="UploadImg">Ảnh bìa (tối đa 2 MB)</label>
+        <input type="file" id="UploadImg" name="UploadImg" accept="image/*" class="form-control" />
+        @Html.ValidationMessageFor(m => m.UploadImg, "", new { @class = "text-danger" })
+        @Html.HiddenFor(m => m.CoverImage)
+    </div>
+    <div class="col-md-4">
+        <img id="coverPreview" src="@Url.Content(Model.ImageUrl)" alt="Ảnh bìa" style="max-height:140px;border-radius:6px" />
+    </div>
+    <div class="col-12">
+        <div class="form-check">
+            @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input" })
+            @Html.LabelFor(m => m.IsActive, new { @class = "form-check-label" })
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var f = document.getElementById('UploadImg'), p = document.getElementById('coverPreview');
+        if (f && p) f.addEventListener('change', function () { if (f.files[0]) p.src = URL.createObjectURL(f.files[0]); });
+    })();
+</script>

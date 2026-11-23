@@ -1,16 +1,10 @@
 ﻿@model NguyenTanPhu_23DH114527.Models.User
-@{
-    ViewBag.Title = "Xóa tài khoản";
-}
-
-<h2 class="page-title">Xóa tài khoản quản trị</h2>
-<h5>Bạn có chắc muốn xóa tài khoản <strong>@Model.Username</strong>?</h5>
-
-@using (Html.BeginForm("Delete", "Users", new { id = Model.Username }, FormMethod.Post))
+@{ ViewBag.Title = "Xóa tài khoản"; }
+<h2 class="page-title">Xóa tài khoản</h2>
+<div class="alert alert-danger" style="max-width:640px">Xóa tài khoản <strong>@Model.Username</strong> (@Model.FullName)? Tài khoản đã phát sinh dữ liệu sẽ không xóa được.</div>
+@using (Html.BeginForm("Delete", "Users", new { id = Model.UserId }, FormMethod.Post))
 {
     @Html.AntiForgeryToken()
-    <div class="mt-3">
-        <button type="submit" class="btn btn-danger">Xóa</button>
-        @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-secondary" })
-    </div>
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
 }

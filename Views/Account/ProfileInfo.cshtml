@@ -11,10 +11,10 @@
         <div class="panel">
             <h2 class="h6 text-uppercase text-muted">Thông tin cá nhân</h2>
             <dl class="mb-0">
-                <dt>Họ và tên</dt><dd>@Model.Profile.CustomerName</dd>
-                <dt>Số điện thoại</dt><dd>@Model.Profile.CustomerPhone</dd>
-                <dt>Email</dt><dd>@Model.Profile.CustomerEmail</dd>
-                <dt>Địa chỉ</dt><dd>@Model.Profile.CustomerAddress</dd>
+                <dt>Họ và tên</dt><dd>@Model.Profile.FullName</dd>
+                <dt>Số điện thoại</dt><dd>@Model.Profile.PhoneNumber</dd>
+                <dt>Email</dt><dd>@Model.Profile.Email</dd>
+                <dt>Địa chỉ</dt><dd>@Model.Profile.Address</dd>
                 <dt>Tên đăng nhập</dt><dd class="mb-0">@Model.Profile.Username</dd>
             </dl>
             <hr />
@@ -38,24 +38,24 @@
                         @Html.AntiForgeryToken()
                         <div class="row g-3">
                             <div class="col-md-6">
-                                @Html.LabelFor(m => m.Profile.CustomerName, new { @class = "form-label" })
-                                @Html.TextBoxFor(m => m.Profile.CustomerName, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(m => m.Profile.CustomerName, "", new { @class = "text-danger small" })
+                                @Html.LabelFor(m => m.Profile.FullName, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Profile.FullName, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Profile.FullName, "", new { @class = "text-danger small" })
                             </div>
                             <div class="col-md-6">
-                                @Html.LabelFor(m => m.Profile.CustomerPhone, new { @class = "form-label" })
-                                @Html.TextBoxFor(m => m.Profile.CustomerPhone, new { @class = "form-control", type = "tel" })
-                                @Html.ValidationMessageFor(m => m.Profile.CustomerPhone, "", new { @class = "text-danger small" })
+                                @Html.LabelFor(m => m.Profile.PhoneNumber, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Profile.PhoneNumber, new { @class = "form-control", type = "tel" })
+                                @Html.ValidationMessageFor(m => m.Profile.PhoneNumber, "", new { @class = "text-danger small" })
                             </div>
                             <div class="col-md-6">
-                                @Html.LabelFor(m => m.Profile.CustomerEmail, new { @class = "form-label" })
-                                @Html.TextBoxFor(m => m.Profile.CustomerEmail, new { @class = "form-control", type = "email" })
-                                @Html.ValidationMessageFor(m => m.Profile.CustomerEmail, "", new { @class = "text-danger small" })
+                                @Html.LabelFor(m => m.Profile.Email, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Profile.Email, new { @class = "form-control", type = "email" })
+                                @Html.ValidationMessageFor(m => m.Profile.Email, "", new { @class = "text-danger small" })
                             </div>
                             <div class="col-md-6">
-                                @Html.LabelFor(m => m.Profile.CustomerAddress, new { @class = "form-label" })
-                                @Html.TextBoxFor(m => m.Profile.CustomerAddress, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(m => m.Profile.CustomerAddress, "", new { @class = "text-danger small" })
+                                @Html.LabelFor(m => m.Profile.Address, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Profile.Address, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Profile.Address, "", new { @class = "text-danger small" })
                             </div>
                         </div>
                         <button type="submit" class="btn btn-buy mt-3">Lưu thông tin</button>

@@ -1,7 +1,8 @@
-﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.ProductDetailVM
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.BookDetailVM
+@using NguyenTanPhu_23DH114527.Models
 @{
-    var p = Model.Product;
-    ViewBag.Title = p.ProductName;
+    var b = Model.Book;
+    ViewBag.Title = b.Title;
 }
 
 @section styles {
@@ -11,18 +12,83 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item">@Html.ActionLink("Trang chủ", "Index")</li>
-        <li class="breadcrumb-item">@Html.ActionLink(p.Category.CategoryName, "ProductList", new { id = p.CategoryID })</li>
-        <li class="breadcrumb-item active" aria-current="page">@p.ProductName</li>
+        @if (b.Category.ParentCategory != null)
+        {
+            <li class="breadcrumb-item">@Html.ActionLink(b.Category.ParentCategory.CategoryName, "ProductList", new { id = b.Category.ParentCategory.CategoryId })</li>
+        }
+        <li class="breadcrumb-item">@Html.ActionLink(b.Category.CategoryName, "ProductList", new { id = b.CategoryId })</li>
+        <li class="breadcrumb-item active" aria-current="page">@b.Title</li>
     </ol>
 </nav>
 
 <section class="detail-card">
-    @* Partial Detail Product dung chung voi Admin, co them phan chon mua *@
-    @Html.Partial("~/Views/Shared/_ProductInfo.cshtml", p, new ViewDataDictionary { { "ShowBuyBox", true }, { "Quantity", Model.Quantity } })
+    @* Partial thông tin sách dùng chung với Admin, có thêm phần chọn mua *@
+    @Html.Partial("~/Views/Shared/_BookInfo.cshtml", b, new ViewDataDictionary { { "ShowBuyBox", true }, { "Quantity", Model.Quantity }, { "AvgRating", Model.AvgRating }, { "ReviewCount", Model.ReviewCount } })
 </section>
 
-@Html.Partial("_PVRelatedProduct", Model)
-@Html.Partial("_PVTopProduct", Model)
+<section class="section-block" id="reviews">
+    <div class="section-head">
+        <h2>Đánh giá của khách hàng</h2>
+        <span class="text-muted">@Model.ReviewCount đánh giá@(Model.ReviewCount > 0 ? " · trung bình " + Model.AvgRating.ToString("0.0") + "/5" : "")</span>
+    </div>
+
+    @if (Model.CanReview)
+    {
+        <div class="review-form mb-4">
+            @if (Model.MyReview != null && !Model.MyReview.IsApproved)
+            {
+                <div class="alert alert-info py-2">Đánh giá của bạn đang chờ quản trị viên duyệt. Bạn vẫn có thể sửa lại bên dưới.</div>
+            }
+            @using (Html.BeginForm("AddReview", "Home", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="bookId" value="@b.BookId" />
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-2">
+                        <label class="form-label small mb-1" for="rating">Số sao</label>
+                        <select id="rating" name="rating" class="form-select">
+                            @for (var i = 5; i >= 1; i--)
+                            {
+                                <option value="@i" @(Model.MyReview != null && Model.MyReview.Rating == i ? "selected" : "")>@i sao</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label small mb-1" for="comment">Nhận xét</label>
+                        <input type="text" id="comment" name="comment" maxlength="1000" class="form-control" value="@(Model.MyReview != null ? Model.MyReview.Comment : "")" placeholder="Chia sẻ cảm nhận của bạn về cuốn sách" />
+                    </div>
+                    <div class="col-md-2"><button type="submit" class="btn btn-buy w-100">Gửi đánh giá</button></div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted small">Chỉ khách hàng đã mua và nhận sách này mới có thể đánh giá.</p>
+    }
+
+    @if (Model.Reviews.Count == 0)
+    {
+        <p class="text-muted">Chưa có đánh giá nào.</p>
+    }
+    @foreach (var r in Model.Reviews)
+    {
+        <div class="review-item">
+            <div class="d-flex justify-content-between flex-wrap">
+                <strong>@r.User.FullName</strong>
+                <span class="text-muted small">@r.CreatedAt.ToString("dd/MM/yyyy")</span>
+            </div>
+            <div class="text-warning" aria-label="@r.Rating sao">@(new string('★', r.Rating))<span class="text-muted">@(new string('☆', 5 - r.Rating))</span></div>
+            @if (!string.IsNullOrWhiteSpace(r.Comment))
+            {
+                <p class="mb-0">@r.Comment</p>
+            }
+        </div>
+    }
+</section>
+
+@Html.Partial("_PVRelatedBook", Model)
+@Html.Partial("_PVTopBook", Model)
 
 @section scripts {
     <script>
@@ -39,9 +105,9 @@
                 input.value = q;
                 out.textContent = (price * q).toLocaleString('vi-VN') + ' đ';
             }
-            document.querySelectorAll('.qty-control [data-step]').forEach(function (b) {
-                b.addEventListener('click', function () {
-                    input.value = (parseInt(input.value, 10) || 1) + parseInt(b.dataset.step, 10);
+            document.querySelectorAll('.qty-control [data-step]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    input.value = (parseInt(input.value, 10) || 1) + parseInt(btn.dataset.step, 10);
                     update();
                 });
             });

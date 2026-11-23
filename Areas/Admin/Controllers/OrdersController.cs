@@ -3,28 +3,27 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using NguyenTanPhu_23DH114527.Areas.Admin.Filters;
+using NguyenTanPhu_23DH114527.Controllers;
 using NguyenTanPhu_23DH114527.Models;
 using NguyenTanPhu_23DH114527.Models.ViewModel;
 using PagedList;
 
 namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
 {
-    // Quan ly don hang (de Ktra BE): xem, tim kiem, sap xep, phan trang, chi tiet, cap nhat trang thai
+    // Quản lý đơn hàng: danh sách (tìm kiếm, sắp xếp, phân trang), chi tiết, cập nhật trạng thái
     [AdminAuthorize]
-    public class OrdersController : Controller
+    public class OrdersController : BaseController
     {
-        private MyStoreEntities db = new MyStoreEntities();
-
         // GET: Admin/Orders
-        // Tim theo Ten khach hang, Trang thai thanh toan, Ngay dat hang; 15 don/trang
+        // Tìm theo Tên khách hàng, Trạng thái thanh toán, Ngày đặt hàng; 15 đơn/trang
         public ActionResult Index(OrderSearchVM model, int? page)
         {
-            var orders = db.Orders.Include(o => o.Customer).AsQueryable();
+            var orders = db.Orders.Include(o => o.User).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(model.CustomerName))
             {
                 var name = model.CustomerName.Trim();
-                orders = orders.Where(o => o.Customer.CustomerName.Contains(name));
+                orders = orders.Where(o => o.User.FullName.Contains(name) || o.ReceiverName.Contains(name));
             }
             if (!string.IsNullOrWhiteSpace(model.PaymentStatus))
             {
@@ -34,21 +33,22 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
             if (model.OrderDate.HasValue)
             {
                 var date = model.OrderDate.Value.Date;
-                orders = orders.Where(o => o.OrderDate == date);
+                var next = date.AddDays(1);
+                orders = orders.Where(o => o.OrderDate >= date && o.OrderDate < next);
             }
 
             switch (model.SortOrder)
             {
-                case "date_asc": orders = orders.OrderBy(o => o.OrderDate).ThenBy(o => o.OrderID); break;
-                case "name_asc": orders = orders.OrderBy(o => o.Customer.CustomerName).ThenByDescending(o => o.OrderDate); break;
-                case "name_desc": orders = orders.OrderByDescending(o => o.Customer.CustomerName).ThenByDescending(o => o.OrderDate); break;
+                case "date_asc": orders = orders.OrderBy(o => o.OrderDate).ThenBy(o => o.OrderId); break;
+                case "name_asc": orders = orders.OrderBy(o => o.User.FullName).ThenByDescending(o => o.OrderDate); break;
+                case "name_desc": orders = orders.OrderByDescending(o => o.User.FullName).ThenByDescending(o => o.OrderDate); break;
                 case "total_asc": orders = orders.OrderBy(o => o.TotalAmount); break;
                 case "total_desc": orders = orders.OrderByDescending(o => o.TotalAmount); break;
-                default: orders = orders.OrderByDescending(o => o.OrderDate).ThenByDescending(o => o.OrderID); break;
+                default: orders = orders.OrderByDescending(o => o.OrderDate).ThenByDescending(o => o.OrderId); break;
             }
 
-            ViewBag.PaymentStatusList = new SelectList(PaymentStatuses.All, model.PaymentStatus);
-            model.Orders = orders.ToPagedList(page ?? 1, model.PageSize);
+            ViewBag.PaymentStatusList = new SelectList(PayStatuses.All.Select(s => new { Value = s, Text = PayStatuses.Text(s) }), "Value", "Text", model.PaymentStatus);
+            model.Orders = orders.ToPagedList(BookQueries.Page(page), model.PageSize);
             return View(model);
         }
 
@@ -71,12 +71,12 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
             {
                 return id == null ? (ActionResult)new HttpStatusCodeResult(HttpStatusCode.BadRequest) : HttpNotFound();
             }
-            LoadStatusLists(order);
+            ViewBag.NextStatuses = OrderWorkflow.NextStatuses(order);
             return View(order);
         }
 
         // POST: Admin/Orders/UpdateStatus/5
-        // Trang thai thanh toan khong chon tay: tu cap nhat theo quy tac trong Models/OrderWorkflow.cs
+        // Trạng thái thanh toán không chọn tay: tự cập nhật theo OrderWorkflow. Hủy đơn: trigger trong CSDL hoàn kho và trả lượt coupon.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult UpdateStatus(int id, string orderStatus, bool paymentReceived = false)
@@ -87,35 +87,22 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
                 return HttpNotFound();
             }
 
-            var willCancel = orderStatus == OrderStatuses.Cancelled;
             var error = OrderWorkflow.Apply(order, orderStatus, paymentReceived);
+            if (error == null)
+            {
+                error = DbErrors.Save(db);
+            }
             if (error != null)
             {
                 ModelState.AddModelError("", error);
-                LoadStatusLists(order);
+                db.Entry(order).Reload();
+                ViewBag.NextStatuses = OrderWorkflow.NextStatuses(order);
                 return View(order);
             }
 
-            // Huy don -> tra hang ve kho
-            if (willCancel)
-            {
-                foreach (var od in order.OrderDetails)
-                {
-                    od.Product.Quantity += od.Quantity;
-                    od.Product.SoldQuantity = System.Math.Max(0, od.Product.SoldQuantity - od.Quantity);
-                }
-            }
-
-            error = DbErrors.Save(db);
-            if (error != null)
-            {
-                TempData["Error"] = error;
-                return RedirectToAction("UpdateStatus", new { id });
-            }
-
-            TempData["Success"] = "Đơn hàng #" + order.OrderID + ": " + order.OrderStatus + " · " + order.PaymentStatus
-                                  + (OrderWorkflow.RefundNote(order) != null ? ". " + OrderWorkflow.RefundNote(order) : "");
-            return RedirectToAction("DetailedOrder", new { id = order.OrderID });
+            var note = OrderWorkflow.RefundNote(order);
+            TempData["Success"] = "Đơn hàng #" + order.OrderId + ": " + order.StatusText + " · " + order.PaymentStatusText + (note != null ? ". " + note : "");
+            return RedirectToAction("DetailedOrder", new { id = order.OrderId });
         }
 
         private Order FindOrder(int? id)
@@ -124,25 +111,9 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
             {
                 return null;
             }
-            return db.Orders
-                     .Include(o => o.Customer)
-                     .Include(o => o.OrderDetails.Select(od => od.Product))
-                     .FirstOrDefault(o => o.OrderID == id);
-        }
-
-        private void LoadStatusLists(Order order)
-        {
-            // Chi cho chon cac trang thai hop le tiep theo
-            ViewBag.NextStatuses = OrderWorkflow.NextStatuses(order);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
+            return db.Orders.Include(o => o.User).Include(o => o.Coupon)
+                            .Include(o => o.OrderItems.Select(oi => oi.Book))
+                            .FirstOrDefault(o => o.OrderId == id);
         }
     }
 }

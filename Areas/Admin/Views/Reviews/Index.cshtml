@@ -1,0 +1,40 @@
+﻿@model PagedList.IPagedList<NguyenTanPhu_23DH114527.Models.Review>
+@using PagedList.Mvc
+@{ ViewBag.Title = "Đánh giá"; string status = ViewBag.Status; }
+<h2 class="page-title">Kiểm duyệt đánh giá</h2>
+<div class="btn-group mb-3">
+    @Html.ActionLink("Tất cả", "Index", null, new { @class = "btn btn-outline-primary" + (string.IsNullOrEmpty(status) ? " active" : "") })
+    @Html.ActionLink("Chờ duyệt", "Index", new { status = "pending" }, new { @class = "btn btn-outline-primary" + (status == "pending" ? " active" : "") })
+    @Html.ActionLink("Đã duyệt", "Index", new { status = "approved" }, new { @class = "btn btn-outline-primary" + (status == "approved" ? " active" : "") })
+</div>
+@if (Model.TotalItemCount == 0) { <p class="empty-result">KHÔNG CÓ</p> }
+else
+{
+    <div class="table-responsive">
+        <table class="table table-admin align-middle">
+            <thead><tr><th>Sách</th><th>Khách</th><th>Sao</th><th>Nhận xét</th><th>Ngày</th><th>Trạng thái</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>@r.Book.Title</td><td>@r.User.FullName</td><td>@r.Rating ★</td><td style="max-width:320px">@r.Comment</td>
+                        <td>@r.CreatedAt.ToString("dd/MM/yyyy")</td><td>@(r.IsApproved ? "Đã duyệt" : "Chờ duyệt")</td>
+                        <td class="text-nowrap">
+                            @using (Html.BeginForm("Toggle", "Reviews", new { id = r.ReviewId, status }, FormMethod.Post, new { @class = "d-inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-primary">@(r.IsApproved ? "Ẩn" : "Duyệt")</button>
+                            }
+                            @using (Html.BeginForm("Delete", "Reviews", new { id = r.ReviewId, status }, FormMethod.Post, new { @class = "d-inline", onsubmit = "return confirm('Xóa đánh giá này?');" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, status }))
+}

@@ -1,0 +1,22 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Book
+@* The san pham dung chung: Home, danh muc, chi tiet, gio hang *@
+
+<div class="product-card">
+    <a href="@Url.Action("ProductDetail", "Home", new { area = "", id = Model.BookId })" class="product-cover">
+        <img src="@Url.Content(Model.ImageUrl)" alt="@Model.Title" loading="lazy" />
+    </a>
+    <div class="product-body">
+        <a href="@Url.Action("ProductDetail", "Home", new { area = "", id = Model.BookId })" class="product-name" title="@Model.Title">@Model.Title</a>
+        <div class="product-meta text-truncate" title="@Model.AuthorNames">@Model.AuthorNames</div>
+        <div class="product-price">@Model.Price.ToString("N0") đ</div>
+        <div class="product-meta">Đã bán @Model.SoldCount</div>
+        @using (Html.BeginForm("AddToCart", "Cart", new { area = "" }, FormMethod.Post, new { @class = "mt-2" }))
+        {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="bookId" value="@Model.BookId" />
+            <input type="hidden" name="quantity" value="1" />
+            <input type="hidden" name="returnUrl" value="@Request.RawUrl" />
+            <button type="submit" class="btn btn-sm btn-buy w-100">Thêm vào giỏ</button>
+        }
+    </div>
+</div>

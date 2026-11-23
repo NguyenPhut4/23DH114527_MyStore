@@ -1,8 +1,8 @@
 ﻿@model IEnumerable<NguyenTanPhu_23DH114527.Models.Order>
 @*
-    Partial danh sach don hang (tach tu trang Index cua Orders), dung chung cho:
-    - Orders/Index: ViewData["ShowCustomer"] = true, ViewData["SortLink"] = ham tao link sap xep
-    - Customers/Details: nhung danh sach don hang cua 1 khach hang
+    Partial danh sách đơn hàng, dùng chung cho:
+    - Orders/Index: ViewData["ShowCustomer"] = true, ViewData["SortLink"] = hàm tạo link sắp xếp
+    - Customers/Details: danh sách đơn hàng của một khách hàng
 *@
 @{
     var showCustomer = ViewData["ShowCustomer"] as bool? == true;
@@ -40,7 +40,7 @@ else
                     <th>@Header("Tổng giá trị", "total_desc", "total_asc", sortLink)</th>
                     <th>Trạng thái thanh toán</th>
                     <th>Trạng thái đơn</th>
-                    <th>Phương thức giao hàng</th>
+                    <th>Giao hàng</th>
                     <th></th>
                 </tr>
             </thead>
@@ -48,17 +48,17 @@ else
                 @foreach (var o in Model)
                 {
                     <tr>
-                        <td>#@o.OrderID</td>
+                        <td>#@o.OrderId</td>
                         <td>@o.OrderDate.ToString("dd/MM/yyyy")</td>
                         @if (showCustomer)
                         {
-                            <td>@(o.Customer != null ? o.Customer.CustomerName : "")</td>
+                            <td>@(o.User != null ? o.User.FullName : o.ReceiverName)</td>
                         }
                         <td class="text-nowrap">@o.TotalAmount.ToString("N0") đ</td>
-                        <td>@o.PaymentStatus</td>
-                        <td>@o.OrderStatus</td>
-                        <td>@o.DeliveryMethod</td>
-                        <td class="text-nowrap">@Html.ActionLink("Chi tiết đơn hàng", "DetailedOrder", "Orders", new { area = "Admin", id = o.OrderID }, null)</td>
+                        <td>@o.PaymentStatusText</td>
+                        <td>@o.StatusText</td>
+                        <td>@o.DeliveryText</td>
+                        <td class="text-nowrap">@Html.ActionLink("Chi tiết đơn hàng", "DetailedOrder", "Orders", new { area = "Admin", id = o.OrderId }, null)</td>
                     </tr>
                 }
             </tbody>

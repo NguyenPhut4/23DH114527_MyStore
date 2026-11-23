@@ -1,0 +1,9 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Author
+@{ ViewBag.Title = "Sửa tác giả"; }
+<h2 class="page-title">Sửa tác giả / dịch giả</h2>
+@using (Html.BeginForm("Edit", "Authors"))
+{
+    @Html.Partial("PVCreateEditAuthor", Model)
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
+}

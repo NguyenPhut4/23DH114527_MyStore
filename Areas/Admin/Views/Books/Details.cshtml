@@ -1,0 +1,12 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Book
+@{
+    ViewBag.Title = "Chi tiết sách";
+}
+
+<h2 class="page-title">Chi tiết sách</h2>
+@Html.Partial("PVBookInfo", Model)
+<p class="mt-2">Đã bán: <strong>@ViewBag.SoldCount</strong> cuốn (không tính đơn đã hủy)</p>
+<div class="mt-3">
+    @Html.ActionLink("Sửa", "Edit", new { id = Model.BookId }, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
+</div>

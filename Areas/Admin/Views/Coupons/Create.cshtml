@@ -1,0 +1,9 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Coupon
+@{ ViewBag.Title = "Thêm coupon"; }
+<h2 class="page-title">Thêm coupon</h2>
+@using (Html.BeginForm("Create", "Coupons"))
+{
+    @Html.Partial("PVCreateEditCoupon", Model)
+    <div class="mt-3"><button type="submit" class="btn btn-primary">Lưu</button>
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })</div>
+}

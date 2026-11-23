@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="337f0fa869724e868e4bbaadbc858960" Name="Diagram1">
+        <EntityTypeShape EntityType="HienSachModel.Author" Width="1.5" PointX="3" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="HienSachModel.BookAuthor" Width="1.5" PointX="5.25" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="HienSachModel.BookPriceHistory" Width="1.5" PointX="5.25" PointY="11.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="HienSachModel.Book" Width="1.5" PointX="3" PointY="7.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="HienSachModel.CartItem" Width="1.5" PointX="8.25" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="HienSachModel.Category" Width="1.5" PointX="0.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="HienSachModel.Coupon" Width="1.5" PointX="3.75" PointY="2.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="HienSachModel.OrderItem" Width="1.5" PointX="8.25" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="HienSachModel.Order" Width="1.5" PointX="6" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="HienSachModel.Publisher" Width="1.5" PointX="0.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="HienSachModel.Review" Width="1.5" PointX="8.25" PointY="11.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="HienSachModel.User" Width="1.5" PointX="3.75" PointY="14.625" IsExpanded="true" />
+        <AssociationConnector Association="HienSachModel.FK_BookAuthors_Authors" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_BookAuthors_Books" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_BookPriceHistory_Books" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_Books_Categories" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_Books_Publishers" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_CartItems_Books" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_OrderItems_Books" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_Reviews_Books" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_CartItems_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_Categories_Parent" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_Orders_Coupons" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_OrderItems_Orders" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_Orders_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="HienSachModel.FK_Reviews_Users" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

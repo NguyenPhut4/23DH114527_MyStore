@@ -1,0 +1,73 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Book
+@*
+    Partial thông tin sách dùng chung:
+    - Admin: Books/Details, Books/Delete (không có nút MUA HÀNG)
+    - Customer: Home/ProductDetail (ViewData["ShowBuyBox"] = true thì hiện phần chọn mua)
+*@
+@{
+    var showBuyBox = ViewData["ShowBuyBox"] as bool? == true;
+    var avg = ViewData["AvgRating"] as double? ?? 0;
+    var reviewCount = ViewData["ReviewCount"] as int? ?? 0;
+}
+
+<div class="row g-4 product-info">
+    <div class="col-md-5 text-center">
+        <img src="@Url.Content(Model.ImageUrl)" alt="@Model.Title" class="product-image-lg detail-image" />
+    </div>
+    <div class="col-md-7">
+        <h1 class="detail-title h3">@Model.Title</h1>
+        <p class="mb-1">
+            Tác giả: <strong>@Model.AuthorNames</strong>
+            @if (!string.IsNullOrEmpty(Model.TranslatorNames))
+            {
+                <span class="text-muted"> · Dịch giả: @Model.TranslatorNames</span>
+            }
+        </p>
+        <p class="text-muted mb-2">
+            @Model.Category.CategoryName · NXB @Model.Publisher.PublisherName · Đã bán @Model.SoldCount
+            @if (reviewCount > 0)
+            {
+                <span class="ms-2 text-warning" title="@avg.ToString("0.0") / 5">★ @avg.ToString("0.0") <span class="text-muted">(@reviewCount đánh giá)</span></span>
+            }
+        </p>
+        <div class="detail-price fs-3 fw-bold text-danger">@Model.Price.ToString("N0") đ</div>
+
+        <dl class="row mb-2">
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ISBN)</dt>
+            <dd class="col-sm-8">@Model.ISBN</dd>
+            @if (Model.PageCount.HasValue)
+            {
+                <dt class="col-sm-4">@Html.DisplayNameFor(m => m.PageCount)</dt>
+                <dd class="col-sm-8">@Model.PageCount</dd>
+            }
+            @if (Model.PublishYear.HasValue)
+            {
+                <dt class="col-sm-4">@Html.DisplayNameFor(m => m.PublishYear)</dt>
+                <dd class="col-sm-8">@Model.PublishYear</dd>
+            }
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.StockQuantity)</dt>
+            <dd class="col-sm-8">
+                @if (!Model.IsActive)
+                {
+                    <span class="badge bg-secondary">Ngừng kinh doanh</span>
+                }
+                else if (Model.StockQuantity > 0)
+                {
+                    @Model.StockQuantity
+                }
+                else
+                {
+                    <span class="badge bg-danger">Hết hàng</span>
+                }
+            </dd>
+        </dl>
+
+        <h2 class="h6">@Html.DisplayNameFor(m => m.Description)</h2>
+        <p class="detail-desc" style="white-space: pre-line">@Model.Description</p>
+
+        @if (showBuyBox)
+        {
+            @Html.Partial("~/Views/Home/_BuyBox.cshtml", Model)
+        }
+    </div>
+</div>

@@ -1,0 +1,99 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.BookSearchVM
+@using PagedList.Mvc
+@{
+    ViewBag.Title = "Sách";
+    Func<string, string, string> sortLink = (asc, desc) => Url.Action("Index", new
+    {
+        searchTerm = Model.SearchTerm, categoryId = Model.CategoryId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice,
+        stockFilter = Model.StockFilter, sortOrder = Model.SortOrder == asc ? desc : asc
+    });
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <h2 class="page-title mb-0">Danh sách sách</h2>
+    @Html.ActionLink("Thêm sách", "Create", null, new { @class = "btn btn-primary" })
+</div>
+
+@using (Html.BeginForm("Index", "Books", FormMethod.Get))
+{
+    <div class="row g-2 align-items-end my-2">
+        <div class="col-md-3">
+            @Html.LabelFor(m => m.SearchTerm, new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.SearchTerm, new { @class = "form-control", placeholder = "Tên sách, ISBN, tác giả" })
+        </div>
+        <div class="col-md-3">
+            @Html.LabelFor(m => m.CategoryId, new { @class = "form-label" })
+            @Html.DropDownList("CategoryId", (SelectList)ViewBag.Categories, "-- Tất cả --", new { @class = "form-select" })
+        </div>
+        <div class="col-6 col-md-2">
+            @Html.LabelFor(m => m.MinPrice, new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.MinPrice, new { @class = "form-control", type = "number", min = 0 })
+        </div>
+        <div class="col-6 col-md-2">
+            @Html.LabelFor(m => m.MaxPrice, new { @class = "form-label" })
+            @Html.TextBoxFor(m => m.MaxPrice, new { @class = "form-control", type = "number", min = 0 })
+        </div>
+        <div class="col-md-2">
+            @Html.LabelFor(m => m.StockFilter, new { @class = "form-label" })
+            <select name="StockFilter" class="form-select">
+                <option value="">Tất cả</option>
+                <option value="low" selected="@(Model.StockFilter == "low")">Sắp hết (≤ 10)</option>
+                <option value="out" selected="@(Model.StockFilter == "out")">Hết hàng</option>
+                <option value="inactive" selected="@(Model.StockFilter == "inactive")">Ngừng kinh doanh</option>
+            </select>
+        </div>
+        <div class="col-12 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            @Html.ActionLink("Xóa lọc", "Index", null, new { @class = "btn btn-outline-secondary" })
+        </div>
+    </div>
+}
+
+@if (Model.Books.TotalItemCount == 0)
+{
+    <p class="empty-result">KHÔNG CÓ</p>
+}
+else
+{
+    <p class="text-muted">Có @Model.Books.TotalItemCount cuốn sách. Bấm vào tiêu đề cột để sắp xếp.</p>
+    <div class="table-responsive">
+        <table class="table table-admin align-middle">
+            <thead>
+                <tr>
+                    <th>Ảnh</th>
+                    <th><a href="@sortLink("title_asc", "title_desc")">Tên sách ⇅</a></th>
+                    <th>Tác giả</th>
+                    <th>Danh mục</th>
+                    <th><a href="@sortLink("price_asc", "price_desc")">Giá ⇅</a></th>
+                    <th><a href="@sortLink("stock_asc", "stock_desc")">Tồn ⇅</a></th>
+                    <th>Trạng thái</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var b in Model.Books)
+                {
+                    <tr>
+                        <td><img src="@Url.Content(b.ImageUrl)" alt="" style="width:44px;height:60px;object-fit:cover;border-radius:4px" /></td>
+                        <td><strong>@b.Title</strong><div class="small text-muted">@b.ISBN</div></td>
+                        <td>@b.AuthorNames</td>
+                        <td>@b.Category.CategoryName</td>
+                        <td class="text-nowrap">@b.Price.ToString("N0") đ</td>
+                        <td class="@(b.StockQuantity == 0 ? "text-danger fw-bold" : "")">@b.StockQuantity</td>
+                        <td>@(b.IsActive ? "Đang bán" : "Ngừng bán")</td>
+                        <td class="text-nowrap">
+                            @Html.ActionLink("Sửa", "Edit", new { id = b.BookId }) |
+                            @Html.ActionLink("Chi tiết", "Details", new { id = b.BookId }) |
+                            @Html.ActionLink("Xóa", "Delete", new { id = b.BookId })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @Html.PagedListPager(Model.Books, page => Url.Action("Index", new
+    {
+        page, searchTerm = Model.SearchTerm, categoryId = Model.CategoryId, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice,
+        stockFilter = Model.StockFilter, sortOrder = Model.SortOrder
+    }))
+}

@@ -1,0 +1,9 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Publisher
+@{ ViewBag.Title = "Thêm nhà xuất bản"; }
+<h2 class="page-title">Thêm nhà xuất bản</h2>
+@using (Html.BeginForm("Create", "Publishers"))
+{
+    @Html.Partial("PVCreateEditPublisher", Model)
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
+}

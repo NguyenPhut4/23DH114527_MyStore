@@ -1,0 +1,9 @@
+﻿@model NguyenTanPhu_23DH114527.Models.Publisher
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.PublisherId)
+@Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+<div style="max-width:640px">
+    <div class="mb-3">@Html.LabelFor(m => m.PublisherName, new { @class = "form-label" })@Html.TextBoxFor(m => m.PublisherName, new { @class = "form-control" })@Html.ValidationMessageFor(m => m.PublisherName, "", new { @class = "text-danger" })</div>
+    <div class="mb-3">@Html.LabelFor(m => m.Address, new { @class = "form-label" })@Html.TextBoxFor(m => m.Address, new { @class = "form-control" })@Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })</div>
+    <div class="mb-3">@Html.LabelFor(m => m.Phone, new { @class = "form-label" })@Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })@Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })</div>
+</div>

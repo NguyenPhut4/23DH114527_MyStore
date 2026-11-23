@@ -96,3 +96,17 @@
         border: 0;
     }
 }
+
+/* Tong ket hoa don (tam tinh, phi ship, giam gia) */
+.invoice-sums {
+    max-width: 360px;
+    margin-left: auto;
+    padding: 8px 0;
+}
+
+.invoice-sums > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 2px 0;
+}

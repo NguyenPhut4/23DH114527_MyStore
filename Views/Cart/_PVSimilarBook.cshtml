@@ -1,0 +1,21 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.CartVM
+@using PagedList.Mvc
+
+@if (Model.SimilarBooks != null && Model.SimilarBooks.TotalItemCount > 0)
+{
+    <section class="section-block" id="similar">
+        <div class="section-head">
+            <h2>Sản phẩm tương tự</h2>
+            <span class="text-muted">Cùng danh mục với sản phẩm trong giỏ</span>
+        </div>
+        <div class="product-grid grid-4">
+            @foreach (var p in Model.SimilarBooks)
+            {
+                @Html.Partial("~/Views/Shared/_BookCard.cshtml", p)
+            }
+        </div>
+        <div class="pager-wrap">
+            @Html.PagedListPager(Model.SimilarBooks, page => Url.Action("Index", new { page }) + "#similar")
+        </div>
+    </section>
+}

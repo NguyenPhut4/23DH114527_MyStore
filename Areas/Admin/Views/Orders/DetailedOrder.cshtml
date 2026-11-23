@@ -8,6 +8,6 @@
 @Html.Partial("~/Views/Shared/_OrderInvoice.cshtml", Model)
 
 <div class="mt-3">
-    @Html.ActionLink("Cập nhật trạng thái", "UpdateStatus", new { id = Model.OrderID }, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Cập nhật trạng thái", "UpdateStatus", new { id = Model.OrderId }, new { @class = "btn btn-primary" })
     @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-primary" })
 </div>

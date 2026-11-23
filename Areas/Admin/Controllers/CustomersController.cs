@@ -3,55 +3,48 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using NguyenTanPhu_23DH114527.Areas.Admin.Filters;
+using NguyenTanPhu_23DH114527.Controllers;
 using NguyenTanPhu_23DH114527.Models;
 using NguyenTanPhu_23DH114527.Models.ViewModel;
 using PagedList;
 
 namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
 {
-    // Quan ly khach hang: chi xem, tim kiem, sap xep, phan trang (khong Them/Sua/Xoa)
+    // Khách hàng (Users có Role = Customer): xem, tìm kiếm, sắp xếp, phân trang; khóa hoặc mở khóa (chỉ Admin)
     [AdminAuthorize]
-    public class CustomersController : Controller
+    public class CustomersController : BaseController
     {
-        private MyStoreEntities db = new MyStoreEntities();
-
         // GET: Admin/Customers
-        public ActionResult Index(CustomerSearchVM model, int? page)
+        public ActionResult Index(UserSearchVM model, int? page)
         {
-            var customers = db.Customers.Include(c => c.Orders).AsQueryable();
-
+            var customers = db.Users.Where(u => u.Role == UserRoles.Customer);
             if (!string.IsNullOrWhiteSpace(model.SearchTerm))
             {
                 var term = model.SearchTerm.Trim();
-                customers = customers.Where(c => c.CustomerName.Contains(term)
-                                              || c.CustomerPhone.Contains(term)
-                                              || c.CustomerEmail.Contains(term)
-                                              || c.Username.Contains(term));
+                customers = customers.Where(u => u.FullName.Contains(term) || u.Username.Contains(term) || u.Email.Contains(term) || u.PhoneNumber.Contains(term));
             }
 
             switch (model.SortOrder)
             {
-                case "name_desc": customers = customers.OrderByDescending(c => c.CustomerName); break;
-                case "orders_desc": customers = customers.OrderByDescending(c => c.Orders.Count).ThenBy(c => c.CustomerName); break;
-                case "orders_asc": customers = customers.OrderBy(c => c.Orders.Count).ThenBy(c => c.CustomerName); break;
-                case "id_desc": customers = customers.OrderByDescending(c => c.CustomerID); break;
-                default: customers = customers.OrderBy(c => c.CustomerName); break;
+                case "name_desc": customers = customers.OrderByDescending(u => u.FullName); break;
+                case "orders_desc": customers = customers.OrderByDescending(u => u.Orders.Count).ThenBy(u => u.FullName); break;
+                case "orders_asc": customers = customers.OrderBy(u => u.Orders.Count).ThenBy(u => u.FullName); break;
+                case "date_desc": customers = customers.OrderByDescending(u => u.CreatedAt); break;
+                default: customers = customers.OrderBy(u => u.FullName); break;
             }
 
-            model.Customers = customers.ToPagedList(page ?? 1, model.PageSize);
+            model.Users = customers.ToPagedList(BookQueries.Page(page), model.PageSize);
             return View(model);
         }
 
-        // GET: Admin/Customers/Details/5  (thong tin KH + danh sach don hang)
+        // GET: Admin/Customers/Details/5  (thông tin khách hàng + danh sách đơn hàng)
         public ActionResult Details(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var customer = db.Customers
-                             .Include(c => c.Orders)
-                             .FirstOrDefault(c => c.CustomerID == id);
+            var customer = db.Users.Include(u => u.Orders).FirstOrDefault(u => u.UserId == id && u.Role == UserRoles.Customer);
             if (customer == null)
             {
                 return HttpNotFound();
@@ -59,13 +52,21 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
             return View(customer);
         }
 
-        protected override void Dispose(bool disposing)
+        // POST: Admin/Customers/ToggleActive/5  (khóa hoặc mở khóa; khách bị khóa sẽ bị đăng xuất ngay)
+        [AdminAuthorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ToggleActive(int id)
         {
-            if (disposing)
+            var customer = db.Users.FirstOrDefault(u => u.UserId == id && u.Role == UserRoles.Customer);
+            if (customer == null)
             {
-                db.Dispose();
+                return HttpNotFound();
             }
-            base.Dispose(disposing);
+            customer.IsActive = !customer.IsActive;
+            var error = DbErrors.Save(db);
+            TempData[error == null ? "Success" : "Error"] = error ?? (customer.IsActive ? "Đã mở khóa tài khoản " : "Đã khóa tài khoản ") + customer.Username;
+            return RedirectToAction("Details", new { id });
         }
     }
 }

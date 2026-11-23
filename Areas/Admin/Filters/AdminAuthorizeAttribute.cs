@@ -1,30 +1,29 @@
-﻿using System.Web.Mvc;
-using System.Web.Routing;
+﻿using System.Net;
+using System.Web.Mvc;
 
 namespace NguyenTanPhu_23DH114527.Areas.Admin.Filters
 {
-    // Chi cho phep tai khoan co UserRole = "A" truy cap khu vuc Admin
-    public class AdminAuthorizeAttribute : ActionFilterAttribute
+    // Chỉ cho Admin và Staff vào khu vực quản trị (dùng Roles = "Admin" cho chức năng chỉ dành cho Admin).
+    // Chưa đăng nhập: chuyển tới trang đăng nhập. Đã đăng nhập nhưng sai vai trò: trả về 403.
+    public class AdminAuthorizeAttribute : AuthorizeAttribute
     {
-        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        public AdminAuthorizeAttribute()
         {
-            var session = filterContext.HttpContext.Session;
-            var role = session?["UserRole"] as string;
+            Roles = "Admin,Staff";
+        }
 
-            if (session?["Username"] == null || role != "A")
+        protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
+        {
+            if (filterContext.HttpContext.User.Identity.IsAuthenticated)
             {
-                var returnUrl = filterContext.HttpContext.Request.RawUrl;
-                filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary
-                {
-                    { "area", "Admin" },
-                    { "controller", "Account" },
-                    { "action", "Login" },
-                    { "returnUrl", returnUrl }
-                });
-                return;
+                filterContext.Result = new ViewResult { ViewName = "~/Views/Shared/AccessDenied.cshtml" };
+                filterContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                filterContext.HttpContext.Response.TrySkipIisCustomErrors = true;
             }
-
-            base.OnActionExecuting(filterContext);
+            else
+            {
+                base.HandleUnauthorizedRequest(filterContext);
+            }
         }
     }
 }

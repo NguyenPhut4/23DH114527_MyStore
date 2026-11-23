@@ -1,0 +1,9 @@
+﻿@model NguyenTanPhu_23DH114527.Models.ViewModel.BookDetailVM
+
+<section class="section-block">
+    <div class="section-head">
+        <h2>Sản phẩm tương tự</h2>
+        <span class="text-muted">Cùng danh mục @Model.Book.Category.CategoryName</span>
+    </div>
+    @Html.Partial("~/Views/Shared/_BookSlider.cshtml", Model.RelatedBooks)
+</section>

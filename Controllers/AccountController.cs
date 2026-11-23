@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Web.Mvc;
 using System.Web.Security;
 using NguyenTanPhu_23DH114527.Models;
@@ -6,18 +7,15 @@ using NguyenTanPhu_23DH114527.Models.ViewModel;
 
 namespace NguyenTanPhu_23DH114527.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
-        private const string CustomerRole = "C";
-        private MyStoreEntities db = new MyStoreEntities();
-
         // GET: Account/Register
         public ActionResult Register()
         {
             return View(new RegisterVM());
         }
 
-        // POST: Account/Register
+        // POST: Account/Register  (tạo tài khoản Customer, mật khẩu băm BCrypt)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Register(RegisterVM model)
@@ -31,37 +29,32 @@ namespace NguyenTanPhu_23DH114527.Controllers
                     ModelState.AddModelError("Username", "Tên đăng nhập đã tồn tại");
                 }
             }
-            if (!string.IsNullOrWhiteSpace(model.CustomerPhone))
+            if (!string.IsNullOrWhiteSpace(model.Email))
             {
-                var phone = model.CustomerPhone.Trim();
-                if (db.Customers.Any(c => c.CustomerPhone == phone))
+                model.Email = model.Email.Trim();
+                var email = model.Email;
+                if (db.Users.Any(u => u.Email == email))
                 {
-                    ModelState.AddModelError("CustomerPhone", "Số điện thoại đã được đăng ký");
+                    ModelState.AddModelError("Email", "Email đã được đăng ký");
                 }
             }
-
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // 01 ban ghi User + 01 ban ghi Customer
-            var user = new User
+            db.Users.Add(new User
             {
                 Username = model.Username,
-                Password = model.Password,
-                UserRole = CustomerRole
-            };
-            var customer = new Customer
-            {
-                CustomerName = model.CustomerName.Trim(),
-                CustomerPhone = model.CustomerPhone.Trim(),
-                CustomerEmail = model.CustomerEmail.Trim(),
-                CustomerAddress = model.CustomerAddress.Trim(),
-                Username = model.Username
-            };
-            db.Users.Add(user);
-            db.Customers.Add(customer);
+                PasswordHash = Auth.HashPassword(model.Password),
+                FullName = model.FullName.Trim(),
+                Email = model.Email,
+                PhoneNumber = model.PhoneNumber.Trim(),
+                Address = model.Address.Trim(),
+                Role = UserRoles.Customer,
+                CreatedAt = DateTime.Now,
+                IsActive = true
+            });
             var error = DbErrors.Save(db);
             if (error != null)
             {
@@ -78,12 +71,12 @@ namespace NguyenTanPhu_23DH114527.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectAfterLogin(returnUrl);
             }
             return View(new LoginVM { ReturnUrl = returnUrl, Username = username });
         }
 
-        // POST: Account/Login
+        // POST: Account/Login  (một trang đăng nhập cho cả khách hàng, nhân viên và quản trị)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginVM model)
@@ -94,43 +87,44 @@ namespace NguyenTanPhu_23DH114527.Controllers
             }
 
             var username = model.Username.Trim();
-            var user = db.Users.FirstOrDefault(u => u.Username == username && u.UserRole == CustomerRole);
-            if (user == null || user.Password.Trim() != model.Password)
+            var user = db.Users.FirstOrDefault(u => u.Username == username);
+            if (user == null || !Auth.Verify(model.Password, user.PasswordHash))
             {
                 ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng");
                 return View(model);
             }
-
-            var customer = db.Customers.FirstOrDefault(c => c.Username == user.Username);
-            Session["CustomerName"] = customer != null ? customer.CustomerName : user.Username;
-            FormsAuthentication.SetAuthCookie(user.Username, model.RememberMe);
-
-            if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+            if (!user.IsActive)
             {
-                return Redirect(model.ReturnUrl);
+                ModelState.AddModelError("", "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.");
+                return View(model);
             }
-            return RedirectToAction("Index", "Home");
+
+            Auth.SignIn(Response, user, model.RememberMe);
+            return RedirectAfterLogin(model.ReturnUrl, user.Role);
         }
 
-        // GET: Account/Logout
+        // POST: Account/Logout
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut();
-            Session.Remove("CustomerName");
-            Session.Remove("Cart");
-            return RedirectToAction("Index", "Home");
+            Session.Clear();
+            return RedirectToAction("Index", "Home", new { area = "" });
+        }
+
+        // GET: Account/AccessDenied
+        public ActionResult AccessDenied()
+        {
+            Response.StatusCode = 403;
+            return View("~/Views/Shared/AccessDenied.cshtml");
         }
 
         // GET: Account/ProfileInfo
         [Authorize]
         public ActionResult ProfileInfo()
         {
-            var customer = CurrentCustomer();
-            if (customer == null)
-            {
-                return RedirectToAction("Logout");
-            }
-            return View(new ProfileVM { Profile = ToProfile(customer) });
+            return View(new ProfileVM { Profile = ToProfile(CurrentUser) });
         }
 
         // POST: Account/UpdateProfile
@@ -139,29 +133,32 @@ namespace NguyenTanPhu_23DH114527.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UpdateProfile([Bind(Prefix = "Profile")] UpdateProfileVM model)
         {
-            var customer = CurrentCustomer();
-            if (customer == null)
+            var user = CurrentUser;
+            if (!string.IsNullOrWhiteSpace(model.Email))
             {
-                return RedirectToAction("Logout");
-            }
-
-            var phone = (model.CustomerPhone ?? "").Trim();
-            if (db.Customers.Any(c => c.CustomerPhone == phone && c.CustomerID != customer.CustomerID))
-            {
-                ModelState.AddModelError("Profile.CustomerPhone", "Số điện thoại đã được tài khoản khác sử dụng");
+                var email = model.Email.Trim();
+                if (db.Users.Any(u => u.Email == email && u.UserId != user.UserId))
+                {
+                    ModelState.AddModelError("Profile.Email", "Email đã được tài khoản khác sử dụng");
+                }
             }
             if (!ModelState.IsValid)
             {
-                model.Username = customer.Username;
+                model.Username = user.Username;
                 return View("ProfileInfo", new ProfileVM { Profile = model });
             }
 
-            customer.CustomerName = model.CustomerName.Trim();
-            customer.CustomerPhone = phone;
-            customer.CustomerEmail = model.CustomerEmail.Trim();
-            customer.CustomerAddress = model.CustomerAddress.Trim();
-            db.SaveChanges();
-            Session["CustomerName"] = customer.CustomerName;
+            user.FullName = model.FullName.Trim();
+            user.PhoneNumber = model.PhoneNumber.Trim();
+            user.Email = model.Email.Trim();
+            user.Address = model.Address.Trim();
+            var error = DbErrors.Save(db);
+            if (error != null)
+            {
+                ModelState.AddModelError("", error);
+                model.Username = user.Username;
+                return View("ProfileInfo", new ProfileVM { Profile = model });
+            }
 
             TempData["Success"] = "Đã cập nhật thông tin tài khoản";
             return RedirectToAction("ProfileInfo");
@@ -173,54 +170,52 @@ namespace NguyenTanPhu_23DH114527.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ChangePassword([Bind(Prefix = "ChangePassword")] ChangePasswordVM model)
         {
-            var customer = CurrentCustomer();
-            var user = customer == null ? null : db.Users.Find(customer.Username);
-            if (user == null)
-            {
-                return RedirectToAction("Logout");
-            }
-
-            if (ModelState.IsValid && user.Password.Trim() != model.OldPassword)
+            var user = CurrentUser;
+            if (ModelState.IsValid && !Auth.Verify(model.OldPassword, user.PasswordHash))
             {
                 ModelState.AddModelError("ChangePassword.OldPassword", "Mật khẩu hiện tại không đúng");
             }
             if (!ModelState.IsValid)
             {
                 ViewBag.ShowPasswordTab = true;
-                return View("ProfileInfo", new ProfileVM { Profile = ToProfile(customer), ChangePassword = new ChangePasswordVM() });
+                return View("ProfileInfo", new ProfileVM { Profile = ToProfile(user), ChangePassword = new ChangePasswordVM() });
             }
 
-            user.Password = model.NewPassword;
-            db.SaveChanges();
+            user.PasswordHash = Auth.HashPassword(model.NewPassword);
+            var error = DbErrors.Save(db);
+            if (error != null)
+            {
+                TempData["Error"] = error;
+                return RedirectToAction("ProfileInfo");
+            }
             TempData["Success"] = "Đã đổi mật khẩu";
             return RedirectToAction("ProfileInfo");
         }
 
-        private Customer CurrentCustomer()
+        private ActionResult RedirectAfterLogin(string returnUrl, string role = null)
         {
-            var username = User.Identity.Name;
-            return db.Customers.FirstOrDefault(c => c.Username == username);
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            role = role ?? (User.IsInRole(UserRoles.Admin) ? UserRoles.Admin : User.IsInRole(UserRoles.Staff) ? UserRoles.Staff : UserRoles.Customer);
+            if (role == UserRoles.Admin || role == UserRoles.Staff)
+            {
+                return RedirectToAction("Index", "Home", new { area = "Admin" });
+            }
+            return RedirectToAction("Index", "Home", new { area = "" });
         }
 
-        private static UpdateProfileVM ToProfile(Customer c)
+        private static UpdateProfileVM ToProfile(User u)
         {
             return new UpdateProfileVM
             {
-                Username = c.Username,
-                CustomerName = c.CustomerName,
-                CustomerPhone = c.CustomerPhone,
-                CustomerEmail = c.CustomerEmail,
-                CustomerAddress = c.CustomerAddress
+                Username = u.Username,
+                FullName = u.FullName,
+                PhoneNumber = u.PhoneNumber,
+                Email = u.Email,
+                Address = u.Address
             };
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }

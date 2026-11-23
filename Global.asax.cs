@@ -17,5 +17,11 @@ namespace NguyenTanPhu_23DH114527
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
+
+        // Gắn vai trò (Customer, Staff, Admin) từ vé xác thực vào User của yêu cầu hiện tại
+        protected void Application_PostAuthenticateRequest(object sender, EventArgs e)
+        {
+            NguyenTanPhu_23DH114527.Models.Auth.AttachRoles(Context);
+        }
     }
 }
