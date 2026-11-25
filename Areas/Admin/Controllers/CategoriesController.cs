@@ -124,7 +124,7 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
 
         private void FillParents(int? selected, int exceptId)
         {
-            ViewBag.ParentId = new SelectList(db.Categories.Where(c => c.ParentId == null && c.CategoryId != exceptId).OrderBy(c => c.CategoryName),
+            ViewBag.ParentList = new SelectList(db.Categories.Where(c => c.ParentId == null && c.CategoryId != exceptId).OrderBy(c => c.CategoryName),
                                               "CategoryId", "CategoryName", selected);
         }
     }

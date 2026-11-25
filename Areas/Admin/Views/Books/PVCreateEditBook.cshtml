@@ -17,22 +17,22 @@
     </div>
     <div class="col-md-6">
         @Html.LabelFor(m => m.CategoryId, new { @class = "form-label" })
-        @Html.DropDownList("CategoryId", (SelectList)ViewBag.CategoryId, "-- Chọn danh mục --", new { @class = "form-select" })
+        @Html.DropDownList("CategoryId", (SelectList)ViewBag.CategoryList, "-- Chọn danh mục --", new { @class = "form-select" })
         @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
     </div>
     <div class="col-md-6">
         @Html.LabelFor(m => m.PublisherId, new { @class = "form-label" })
-        @Html.DropDownList("PublisherId", (SelectList)ViewBag.PublisherId, "-- Chọn NXB --", new { @class = "form-select" })
+        @Html.DropDownList("PublisherId", (SelectList)ViewBag.PublisherList, "-- Chọn NXB --", new { @class = "form-select" })
         @Html.ValidationMessageFor(m => m.PublisherId, "", new { @class = "text-danger" })
     </div>
     <div class="col-md-6">
         <label class="form-label" for="authorIds">Tác giả (người đầu tiên là tác giả chính)</label>
-        @Html.ListBox("authorIds", (MultiSelectList)ViewBag.AuthorIds, new { @class = "form-select", size = 5 })
+        @Html.ListBox("authorIds", (MultiSelectList)ViewBag.AuthorList, new { @class = "form-select", size = 5 })
         <div class="form-text">Giữ Ctrl để chọn nhiều người.</div>
     </div>
     <div class="col-md-6">
         <label class="form-label" for="translatorIds">Dịch giả</label>
-        @Html.ListBox("translatorIds", (MultiSelectList)ViewBag.TranslatorIds, new { @class = "form-select", size = 5 })
+        @Html.ListBox("translatorIds", (MultiSelectList)ViewBag.TranslatorList, new { @class = "form-select", size = 5 })
     </div>
     <div class="col-6 col-md-3">
         @Html.LabelFor(m => m.Price, new { @class = "form-label" })

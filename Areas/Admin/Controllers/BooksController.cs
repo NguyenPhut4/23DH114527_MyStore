@@ -222,11 +222,11 @@ namespace NguyenTanPhu_23DH114527.Areas.Admin.Controllers
 
         private void FillLists(Book book, int[] authorIds, int[] translatorIds)
         {
-            ViewBag.CategoryId = CategorySelect(book.CategoryId == 0 ? (int?)null : book.CategoryId, true);
-            ViewBag.PublisherId = new SelectList(db.Publishers.OrderBy(p => p.PublisherName), "PublisherId", "PublisherName", book.PublisherId);
+            ViewBag.CategoryList = CategorySelect(book.CategoryId == 0 ? (int?)null : book.CategoryId, true);
+            ViewBag.PublisherList = new SelectList(db.Publishers.OrderBy(p => p.PublisherName), "PublisherId", "PublisherName", book.PublisherId);
             var authors = db.Authors.OrderBy(a => a.AuthorName).ToList();
-            ViewBag.AuthorIds = new MultiSelectList(authors, "AuthorId", "AuthorName", authorIds);
-            ViewBag.TranslatorIds = new MultiSelectList(authors, "AuthorId", "AuthorName", translatorIds);
+            ViewBag.AuthorList = new MultiSelectList(authors, "AuthorId", "AuthorName", authorIds);
+            ViewBag.TranslatorList = new MultiSelectList(authors, "AuthorId", "AuthorName", translatorIds);
         }
 
         // Danh mục dạng 2 cấp: "Cha" và "Cha › Con"
